@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import tcod
 
-from actions import Action, ActionType
+from actions import ActionType
 from input_handlers import handle_keys
 
 
