@@ -1,10 +1,12 @@
+from typing import Optional
+
 import tcod.event
 
 from actions import Action, ActionType
 
 
-def handle_keys(key) -> [Action, None]:
-    action: [Action, None] = None
+def handle_keys(key: int) -> Optional[Action]:
+    action: Optional[Action] = None
 
     if key == tcod.event.K_UP:
         action = Action(ActionType.MOVEMENT, dx=0, dy=-1)
