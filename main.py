@@ -4,12 +4,12 @@ from actions import Action, ActionType
 from input_handlers import handle_keys
 
 
-def main():
-    screen_width: int = 80
-    screen_height: int = 50
+def main() -> None:
+    screen_width = 80
+    screen_height = 50
 
-    player_x: int = int(screen_width / 2)
-    player_y: int = int(screen_height / 2)
+    player_x = int(screen_width / 2)
+    player_y = int(screen_height / 2)
 
     tcod.console_set_custom_font("arial10x10.png", tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
 
@@ -32,7 +32,7 @@ def main():
                     raise SystemExit()
 
                 if event.type == "KEYDOWN":
-                    action: [Action, None] = handle_keys(event.sym)
+                    action = handle_keys(event.sym)
 
                     if action is None:
                         continue

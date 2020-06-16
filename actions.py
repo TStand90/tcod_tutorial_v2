@@ -1,4 +1,5 @@
 from enum import auto, Enum
+from typing import Any
 
 
 class ActionType(Enum):
@@ -7,6 +8,6 @@ class ActionType(Enum):
 
 
 class Action:
-    def __init__(self, action_type: ActionType, **kwargs):
-        self.action_type: ActionType = action_type
+    def __init__(self, action_type: ActionType, **kwargs: Any):
+        self.action_type = action_type
         self.kwargs = kwargs
