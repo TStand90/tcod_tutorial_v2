@@ -11,19 +11,22 @@ def main():
     player_x: int = int(screen_width / 2)
     player_y: int = int(screen_height / 2)
 
-    tcod.console_set_custom_font("arial10x10.png", tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
+    tileset = tcod.tileset.load_tilesheet(
+        "arial10x10.png", 32, 8, tcod.tileset.CHARMAP_TCOD
+    )
 
-    with tcod.console_init_root(
-            w=screen_width,
-            h=screen_height,
-            title="Yet Another Roguelike Tutorial",
-            order="F",
-            vsync=True
-    ) as root_console:
+    with tcod.context.new_terminal(
+        screen_width,
+        screen_height,
+        tileset=tileset,
+        title="Yet Another Roguelike Tutorial",
+        vsync=True,
+    ) as context:
+        root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
             root_console.print(x=player_x, y=player_y, string="@")
 
-            tcod.console_flush()
+            context.present(root_console)
 
             root_console.clear()
 
