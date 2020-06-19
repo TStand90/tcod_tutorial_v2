@@ -1,13 +1,14 @@
-from enum import auto, Enum
-from typing import Any
-
-
-class ActionType(Enum):
-    ESCAPE = auto()
-    MOVEMENT = auto()
-
-
 class Action:
-    def __init__(self, action_type: ActionType, **kwargs: Any):
-        self.action_type = action_type
-        self.kwargs = kwargs
+    pass
+
+
+class EscapeAction(Action):
+    pass
+
+
+class MovementAction(Action):
+    def __init__(self, dx: int, dy: int):
+        super(MovementAction, self).__init__()
+
+        self.dx = dx
+        self.dy = dy

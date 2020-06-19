@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import tcod
 
-from actions import ActionType
+from actions import EscapeAction, MovementAction
 from input_handlers import EventHandler
 
 
@@ -39,15 +39,11 @@ def main() -> None:
                 if action is None:
                     continue
 
-                action_type: ActionType = action.action_type
+                if isinstance(action, MovementAction):
+                    player_x += action.dx
+                    player_y += action.dy
 
-                if action_type == ActionType.MOVEMENT:
-                    dx: int = action.kwargs.get("dx", 0)
-                    dy: int = action.kwargs.get("dy", 0)
-
-                    player_x += dx
-                    player_y += dy
-                elif action_type == ActionType.ESCAPE:
+                elif isinstance(action, EscapeAction):
                     raise SystemExit()
 
 
