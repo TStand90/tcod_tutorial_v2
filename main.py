@@ -2,7 +2,7 @@
 import tcod
 
 from actions import ActionType
-from input_handlers import handle_keys
+from input_handlers import EventHandler
 
 
 def main() -> None:
@@ -15,6 +15,8 @@ def main() -> None:
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
+
+    event_handler = EventHandler()
 
     with tcod.context.new_terminal(
         screen_width,
@@ -32,25 +34,21 @@ def main() -> None:
             root_console.clear()
 
             for event in tcod.event.wait():
-                if event.type == "QUIT":
+                action = event_handler.dispatch(event)
+
+                if action is None:
+                    continue
+
+                action_type: ActionType = action.action_type
+
+                if action_type == ActionType.MOVEMENT:
+                    dx: int = action.kwargs.get("dx", 0)
+                    dy: int = action.kwargs.get("dy", 0)
+
+                    player_x += dx
+                    player_y += dy
+                elif action_type == ActionType.ESCAPE:
                     raise SystemExit()
-
-                if event.type == "KEYDOWN":
-                    action = handle_keys(event.sym)
-
-                    if action is None:
-                        continue
-
-                    action_type: ActionType = action.action_type
-
-                    if action_type == ActionType.MOVEMENT:
-                        dx: int = action.kwargs.get("dx", 0)
-                        dy: int = action.kwargs.get("dy", 0)
-
-                        player_x += dx
-                        player_y += dy
-                    elif action_type == ActionType.ESCAPE:
-                        raise SystemExit()
 
 
 if __name__ == "__main__":
