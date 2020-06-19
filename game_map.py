@@ -1,23 +1,22 @@
+import numpy as np  # type: ignore
 from tcod.console import Console
-from tcod.map import Map
+
+graphic_dt = np.dtype([("ch", np.int32), ("fg", "3B"), ("bg", "3B")])
+
+tile_dt = np.dtype(
+    [("walkable", np.bool), ("transparent", np.bool), ("dark", graphic_dt)]
+)
+
+floor = np.array((True, True, (ord(" "), 255, (50, 50, 150))), dtype=tile_dt)
+wall = np.array((False, False, (ord(" "), 255, (0, 0, 100))), dtype=tile_dt)
 
 
-class GameMap(Map):
+class GameMap:
     def __init__(self, width: int, height: int):
-        super().__init__(width, height, order="F")
+        self.width, self.height = width, height
+        self.tiles = np.full((width, height), fill_value=floor, order="F")
 
-        self.walkable[:] = True
-
-        self.walkable[30, 22] = False
-        self.walkable[31, 22] = False
-        self.walkable[32, 22] = False
+        self.tiles[30:33, 22] = wall
 
     def render(self, console: Console):
-        for y in range(self.height):
-            for x in range(self.width):
-                is_wall = not self.walkable[x, y]
-
-                if is_wall:
-                    console.print(x=x, y=y, string=' ', bg=(0, 0, 100))
-                else:
-                    console.print(x=x, y=y, string=' ', bg=(50, 50, 150))
+        console.tiles_rgb[0 : self.width, 0 : self.height] = self.tiles["dark"]

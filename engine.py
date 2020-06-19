@@ -24,7 +24,7 @@ class Engine:
                 continue
 
             if isinstance(action, MovementAction):
-                if self.game_map.walkable[self.player.x + action.dx, self.player.y + action.dy]:
+                if self.game_map.tiles["walkable"][self.player.x + action.dx, self.player.y + action.dy]:
                     self.player.move(dx=action.dx, dy=action.dy)
 
             elif isinstance(action, EscapeAction):
@@ -34,7 +34,7 @@ class Engine:
         self.game_map.render(console)
 
         for entity in self.entities:
-            console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)
+            console.tiles_rgb[["ch", "fg"]][entity.x, entity.y] = ord(entity.char), entity.color
 
         context.present(console)
 
