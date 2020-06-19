@@ -8,7 +8,7 @@ class EscapeAction(Action):
 
 class MovementAction(Action):
     def __init__(self, dx: int, dy: int):
-        super(MovementAction, self).__init__()
+        super().__init__()
 
         self.dx = dx
         self.dy = dy
