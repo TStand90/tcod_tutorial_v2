@@ -34,7 +34,7 @@ class Engine:
         self.game_map.render(console)
 
         for entity in self.entities:
-            console.tiles_rgb[["ch", "fg"]][entity.x, entity.y] = ord(entity.char), entity.color
+            console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)
 
         context.present(console)
 
