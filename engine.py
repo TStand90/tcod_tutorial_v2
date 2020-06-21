@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable, Any
 
 from tcod.context import Context
 from tcod.console import Console
@@ -16,7 +16,7 @@ class Engine:
         self.game_map = game_map
         self.player = player
 
-    def handle_events(self, events):
+    def handle_events(self, events: Iterable[Any]) -> None:
         for event in events:
             action = self.event_handler.dispatch(event)
 
@@ -30,7 +30,7 @@ class Engine:
             elif isinstance(action, EscapeAction):
                 raise SystemExit()
 
-    def render(self, console: Console, context: Context):
+    def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
 
         for entity in self.entities:

@@ -11,5 +11,5 @@ class GameMap:
 
         self.tiles[30:33, 22] = tile_types.wall
 
-    def render(self, console: Console):
+    def render(self, console: Console) -> None:
         console.tiles_rgb[0 : self.width, 0 : self.height] = self.tiles["dark"]
