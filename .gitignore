@@ -1,3 +1,14 @@
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# PyCharm files
 .idea
+
+# Python cache
 __pycache__
+
+# Python virtual environment
 venv
