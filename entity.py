@@ -1,7 +1,5 @@
 from typing import Tuple
 
-from tcod.console import Console
-
 
 class Entity:
     """
