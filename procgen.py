@@ -3,8 +3,6 @@ from __future__ import annotations
 from random import randint
 from typing import List, Tuple, TYPE_CHECKING
 
-import numpy as np  # type: ignore
-
 from game_map import GameMap
 import tile_types
 
