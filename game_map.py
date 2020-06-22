@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from random import randint
-from typing import Tuple, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
@@ -52,7 +52,7 @@ class GameMap:
 
     def make_map(self, max_rooms: int, room_min_size: int, room_max_size: int, map_width: int, map_height: int,
                  player: Entity) -> None:
-        rooms = []
+        rooms: List[Rect] = []
         number_of_rooms = 0
 
         for r in range(max_rooms):
