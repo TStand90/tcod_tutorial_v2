@@ -68,14 +68,14 @@ def generate_dungeon(
     rooms: List[Rect] = []
 
     for r in range(max_rooms):
-        width = randint(room_min_size, room_max_size)
-        height = randint(room_min_size, room_max_size)
+        room_width = randint(room_min_size, room_max_size)
+        room_height = randint(room_min_size, room_max_size)
 
-        x = randint(0, dungeon.width - width - 1)
-        y = randint(0, dungeon.height - height - 1)
+        x = randint(0, dungeon.width - room_width - 1)
+        y = randint(0, dungeon.height - room_height - 1)
 
         # "Rect" class makes rectangles easier to work with
-        new_room = Rect(x, y, width, height)
+        new_room = Rect(x, y, room_width, room_height)
 
         # run through the other rooms and see if they intersect with this one
         if any(new_room.intersects(other_room) for other_room in rooms):
