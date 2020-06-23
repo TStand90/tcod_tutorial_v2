@@ -28,6 +28,7 @@ class EscapeAction(Action):
 class MovementAction(Action):
     def __init__(self, dx: int, dy: int):
         super().__init__()
+
         self.dx = dx
         self.dy = dy
 
@@ -40,5 +41,4 @@ class MovementAction(Action):
         if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return  # Destination is blocked by a tile.
 
-        entity.x = dest_x
-        entity.y = dest_y
+        entity.move(self.dx, self.dy)
