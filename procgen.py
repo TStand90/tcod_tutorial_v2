@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import List, Tuple, TYPE_CHECKING, Iterator
+from typing import Iterator, List, Tuple, TYPE_CHECKING
 
 import tcod
 
