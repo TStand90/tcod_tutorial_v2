@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from entity import Entity
 
 
-class Rect:
+class RectangularRoom:
     def __init__(self, x: int, y: int, width: int, height: int):
         self.x1 = x
         self.y1 = y
@@ -30,8 +30,8 @@ class Rect:
         """Return the inner area of this room as a 2D array index."""
         return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
 
-    def intersects(self, other: Rect) -> bool:
-        """Return True if this Rect overlaps with another Rect."""
+    def intersects(self, other: RectangularRoom) -> bool:
+        """Return True if this room overlaps with another RectangularRoom."""
         return (
             self.x1 <= other.x2
             and self.x2 >= other.x1
@@ -65,7 +65,7 @@ def generate_dungeon(
     """Generate a new dungeon map."""
     dungeon = GameMap(map_width, map_height)
 
-    rooms: List[Rect] = []
+    rooms: List[RectangularRoom] = []
 
     for r in range(max_rooms):
         room_width = randint(room_min_size, room_max_size)
@@ -74,8 +74,8 @@ def generate_dungeon(
         x = randint(0, dungeon.width - room_width - 1)
         y = randint(0, dungeon.height - room_height - 1)
 
-        # "Rect" class makes rectangles easier to work with
-        new_room = Rect(x, y, room_width, room_height)
+        # "RectangularRoom" class makes rectangles easier to work with
+        new_room = RectangularRoom(x, y, room_width, room_height)
 
         # run through the other rooms and see if they intersect with this one
         if any(new_room.intersects(other_room) for other_room in rooms):
