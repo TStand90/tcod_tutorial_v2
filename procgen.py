@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from random import randint
+import random
 from typing import List, Tuple, TYPE_CHECKING
+
+import numpy as np  # type: ignore
+import tcod
 
 from game_map import GameMap
 import tile_types
@@ -40,18 +43,25 @@ class Rect:
         )
 
 
-def create_horizontal_tunnel(gamemap: GameMap, x1: int, x2: int, y: int) -> None:
-    min_x = min(x1, x2)
-    max_x = max(x1, x2) + 1
+def tunnel_between(
+    start: Tuple[int, int], end: Tuple[int, int]
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Return an L-shaped tunnel between these two points."""
+    x1, y1 = start
+    x2, y2 = end
+    if random.random() < 0.5:  # 50% chance.
+        # move horizontally, then vertically
+        corner_x, corner_y = x2, y1
+    else:
+        # move vertically, then horizontally
+        corner_x, corner_y = x1, y2
 
-    gamemap.tiles[min_x:max_x, y] = tile_types.floor
+    # transpose tcod.los.bresenham to get the indexes of each line
+    indexes_1 = tcod.los.bresenham((x1, y1), (corner_x, corner_y)).T
+    indexes_2 = tcod.los.bresenham((corner_x, corner_y), (x2, y2)).T
 
-
-def create_vertical_tunnel(gamemap: GameMap, y1: int, y2: int, x: int) -> None:
-    min_y = min(y1, y2)
-    max_y = max(y1, y2) + 1
-
-    gamemap.tiles[x, min_y:max_y] = tile_types.floor
+    x, y = np.c_[indexes_1, indexes_2]  # concatenate the indexes
+    return x, y
 
 
 def generate_dungeon(
@@ -68,11 +78,11 @@ def generate_dungeon(
     rooms: List[Rect] = []
 
     for r in range(max_rooms):
-        room_width = randint(room_min_size, room_max_size)
-        room_height = randint(room_min_size, room_max_size)
+        room_width = random.randint(room_min_size, room_max_size)
+        room_height = random.randint(room_min_size, room_max_size)
 
-        x = randint(0, dungeon.width - room_width - 1)
-        y = randint(0, dungeon.height - room_height - 1)
+        x = random.randint(0, dungeon.width - room_width - 1)
+        y = random.randint(0, dungeon.height - room_height - 1)
 
         # "Rect" class makes rectangles easier to work with
         new_room = Rect(x, y, room_width, room_height)
@@ -85,29 +95,17 @@ def generate_dungeon(
         # dig out the rooms inner area
         dungeon.tiles[new_room.inner] = tile_types.floor
 
-        # center coordinates of new room, will be useful later
-        (new_x, new_y) = new_room.center
-
         if len(rooms) == 0:
             # this is the first room, where the player starts at
-            player.x = new_x
-            player.y = new_y
+            player.x, player.y = new_room.center
         else:
             # all rooms after the first:
-            # connect it to the previous room with a tunnel
 
-            # center coordinates of previous room
-            (prev_x, prev_y) = rooms[-1].center
+            # get the shape for a tunnel to the previous room
+            tunnel = tunnel_between(rooms[-1].center, new_room.center)
 
-            # flip a coin (random number that is either 0 or 1)
-            if randint(0, 1) == 1:
-                # first move horizontally, then vertically
-                create_horizontal_tunnel(dungeon, prev_x, new_x, prev_y)
-                create_vertical_tunnel(dungeon, prev_y, new_y, new_x)
-            else:
-                # first move vertically, then horizontally
-                create_vertical_tunnel(dungeon, prev_y, new_y, prev_x)
-                create_horizontal_tunnel(dungeon, prev_x, new_x, new_y)
+            # then place floors over the shape
+            dungeon.tiles[tunnel] = tile_types.floor
 
         # finally, append the new room to the list
         rooms.append(new_room)
