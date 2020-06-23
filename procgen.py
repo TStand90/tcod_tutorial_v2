@@ -50,17 +50,17 @@ def tunnel_between(
     x1, y1 = start
     x2, y2 = end
     if random.random() < 0.5:  # 50% chance.
-        # move horizontally, then vertically
+        # Move horizontally, then vertically.
         corner_x, corner_y = x2, y1
     else:
-        # move vertically, then horizontally
+        # Move vertically, then horizontally.
         corner_x, corner_y = x1, y2
 
-    # transpose tcod.los.bresenham to get the indexes of each line
+    # Transpose tcod.los.bresenham to get the indexes of each line.
     indexes_1 = tcod.los.bresenham((x1, y1), (corner_x, corner_y)).T
     indexes_2 = tcod.los.bresenham((corner_x, corner_y), (x2, y2)).T
 
-    x, y = np.c_[indexes_1, indexes_2]  # concatenate the indexes
+    x, y = np.c_[indexes_1, indexes_2]  # Concatenate the indexes.
     return x, y
 
 
@@ -87,27 +87,25 @@ def generate_dungeon(
         # "Rect" class makes rectangles easier to work with
         new_room = Rect(x, y, room_width, room_height)
 
-        # run through the other rooms and see if they intersect with this one
+        # Run through the other rooms and see if they intersect with this one.
         if any(new_room.intersects(other_room) for other_room in rooms):
-            continue  # this room intersects, so go to the next attempt
-        # if there are no intersections then the room is valid
+            continue  # This room intersects, so go to the next attempt.
+        # If there are no intersections then the room is valid.
 
-        # dig out the rooms inner area
+        # Dig out this rooms inner area.
         dungeon.tiles[new_room.inner] = tile_types.floor
 
         if len(rooms) == 0:
-            # this is the first room, where the player starts at
+            # The first room, where the player starts.
             player.x, player.y = new_room.center
-        else:
-            # all rooms after the first:
-
-            # get the shape for a tunnel to the previous room
+        else:  # All rooms after the first.
+            # Get the shape for a tunnel to the previous room.
             tunnel = tunnel_between(rooms[-1].center, new_room.center)
 
-            # then place floors over the shape
+            # Then place floors over the shape.
             dungeon.tiles[tunnel] = tile_types.floor
 
-        # finally, append the new room to the list
+        # Finally, append the new room to the list.
         rooms.append(new_room)
 
     return dungeon
