@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import random
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING, Iterator
 
-import numpy as np  # type: ignore
 import tcod
 
 from game_map import GameMap
@@ -45,7 +44,7 @@ class Rect:
 
 def tunnel_between(
     start: Tuple[int, int], end: Tuple[int, int]
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Iterator[Tuple[int, int]]:
     """Return an L-shaped tunnel between these two points."""
     x1, y1 = start
     x2, y2 = end
@@ -56,12 +55,11 @@ def tunnel_between(
         # Move vertically, then horizontally.
         corner_x, corner_y = x1, y2
 
-    # Transpose tcod.los.bresenham to get the indexes of each line.
-    indexes_1 = tcod.los.bresenham((x1, y1), (corner_x, corner_y)).T
-    indexes_2 = tcod.los.bresenham((corner_x, corner_y), (x2, y2)).T
-
-    x, y = np.c_[indexes_1, indexes_2]  # Concatenate the indexes.
-    return x, y
+    # Generate the coordinates for this tunnel.
+    for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
+        yield x, y
+    for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
+        yield x, y
 
 
 def generate_dungeon(
@@ -99,11 +97,9 @@ def generate_dungeon(
             # The first room, where the player starts.
             player.x, player.y = new_room.center
         else:  # All rooms after the first.
-            # Get the shape for a tunnel to the previous room.
-            tunnel = tunnel_between(rooms[-1].center, new_room.center)
-
-            # Then place floors over the shape.
-            dungeon.tiles[tunnel] = tile_types.floor
+            # Dig out a tunnel between this room and the previous one.
+            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = tile_types.floor
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
