@@ -6,7 +6,7 @@ from actions import Action, EscapeAction, MovementAction
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
-    def ev_quit(self, event: tcod.event.Quit):
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
