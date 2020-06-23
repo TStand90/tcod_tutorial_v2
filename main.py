@@ -4,7 +4,7 @@ import tcod
 from engine import Engine
 from entity import Entity
 from input_handlers import EventHandler
-import procgen
+from procgen import generate_dungeon
 
 
 def main() -> None:
@@ -28,7 +28,7 @@ def main() -> None:
     npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), "@", (255, 255, 0))
     entities = {npc, player}
 
-    game_map = procgen.generate_dungeon(
+    game_map = generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
