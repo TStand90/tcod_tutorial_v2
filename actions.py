@@ -42,3 +42,5 @@ class MovementAction(Action):
             return  # Destination is blocked by a tile.
 
         entity.move(self.dx, self.dy)
+
+        engine.fov_recompute = True
