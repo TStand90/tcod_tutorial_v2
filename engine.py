@@ -1,4 +1,4 @@
-from typing import Set, Iterable, Any, TYPE_CHECKING
+from typing import Set, Iterable, Any
 
 from tcod.context import Context
 from tcod.console import Console
@@ -9,16 +9,12 @@ from game_map import GameMap
 from input_handlers import EventHandler
 
 
-if TYPE_CHECKING:
-    import numpy as np  # type: ignore
-
-
 class Engine:
     def __init__(self, entities: Set[Entity], event_handler: EventHandler, game_map: GameMap, player: Entity):
         self.entities = entities
         self.event_handler = event_handler
         self.fov_recompute = True
-        self.fov_map: np.ndarray = compute_fov(game_map.tiles["transparent"], (player.x, player.y), radius=8)
+        self.fov_map = compute_fov(game_map.tiles["transparent"], (player.x, player.y), radius=8)
         self.game_map = game_map
         self.player = player
 
