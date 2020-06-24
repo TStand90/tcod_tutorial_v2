@@ -26,13 +26,10 @@ class Engine:
 
             action.perform(self, self.player)
 
-    def update_fov(self) -> None:
-        """Recompute the visible area based on the players point of view.
+            self.update_fov()  # Update the FOV before the players next action.
 
-        Call this after any of the following:
-        * The player has moved to a different position or a different map.
-        * Tile transparency has been altered on the current map.
-        """
+    def update_fov(self) -> None:
+        """Recompute the visible area based on the players point of view."""
         self.game_map.visible[:] = compute_fov(
             self.game_map.tiles["transparent"],
             (self.player.x, self.player.y),

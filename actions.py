@@ -42,7 +42,3 @@ class MovementAction(Action):
             return  # Destination is blocked by a tile.
 
         entity.move(self.dx, self.dy)
-
-        # If the player just moved then the field of view needs updating.
-        if entity is engine.player:
-            engine.update_fov()
