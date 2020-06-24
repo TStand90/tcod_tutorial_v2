@@ -10,7 +10,7 @@ from input_handlers import EventHandler
 
 
 if TYPE_CHECKING:
-    import numpy as np
+    import numpy as np  # type: ignore
 
 
 class Engine:
