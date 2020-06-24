@@ -43,4 +43,6 @@ class MovementAction(Action):
 
         entity.move(self.dx, self.dy)
 
-        engine.fov_recompute = True
+        # If the player just moved then the field of view needs updating.
+        if entity is engine.player:
+            engine.update_fov()
