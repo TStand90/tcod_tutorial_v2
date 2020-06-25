@@ -42,9 +42,9 @@ class Engine:
         self.game_map.render(console)
 
         for entity in self.entities:
-            if not self.game_map.visible[entity.x, entity.y]:
-                continue  # Skip entities not in the FOV.
-            console.print(entity.x, entity.y, entity.char, fg=entity.color)
+            # Only print entities that are in the FOV
+            if self.game_map.visible[entity.x, entity.y]:
+                console.print(entity.x, entity.y, entity.char, fg=entity.color)
 
         context.present(console)
 
