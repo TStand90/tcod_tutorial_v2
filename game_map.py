@@ -1,4 +1,4 @@
-from typing import Optional, Set
+from typing import Iterable, Optional
 
 import numpy as np  # type: ignore
 from tcod.console import Console
@@ -8,9 +8,9 @@ import tile_types
 
 
 class GameMap:
-    def __init__(self, width: int, height: int, entities: Set[Entity]):
+    def __init__(self, width: int, height: int, entities: Iterable[Entity] = ()):
         self.width, self.height = width, height
-        self.entities = entities
+        self.entities = set(entities)
         self.tiles = np.full((width, height), fill_value=tile_types.wall, order="F")
 
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see

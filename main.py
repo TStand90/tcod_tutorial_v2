@@ -27,7 +27,6 @@ def main() -> None:
     event_handler = EventHandler()
 
     player = create_player(0, 0)
-    entities = {player}
 
     game_map = generate_dungeon(
         max_rooms=max_rooms,
@@ -37,10 +36,9 @@ def main() -> None:
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
         player=player,
-        entities=entities
     )
 
-    engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
+    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
 
     with tcod.context.new_terminal(
         screen_width,
