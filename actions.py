@@ -45,8 +45,6 @@ class MeleeAction(ActionWithDirection):
     def perform(self, engine: Engine, entity: Entity) -> None:
         print(f"You kick the {self.target.name}, much to its annoyance!")
 
-        engine.handle_enemy_turns()
-
 
 class MovementAction(ActionWithDirection):
     def perform(self, engine: Engine, entity: Entity) -> None:
@@ -59,8 +57,6 @@ class MovementAction(ActionWithDirection):
             return  # Destination is blocked by a tile.
 
         entity.move(self.dx, self.dy)
-
-        engine.handle_enemy_turns()
 
 
 class BumpAction(ActionWithDirection):
