@@ -113,8 +113,6 @@ def generate_dungeon(
         # Dig out this rooms inner area.
         dungeon.tiles[new_room.inner] = tile_types.floor
 
-        place_entities(new_room, dungeon, max_monsters_per_room)
-
         if len(rooms) == 0:
             # The first room, where the player starts.
             player.x, player.y = new_room.center
@@ -122,6 +120,8 @@ def generate_dungeon(
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tile_types.floor
+
+        place_entities(new_room, dungeon, max_monsters_per_room)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
