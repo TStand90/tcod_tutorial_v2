@@ -29,7 +29,7 @@ class Engine:
                 continue
 
             action.perform(self, self.player)
-
+            self.handle_enemy_turns()
             self.update_fov()  # Update the FOV before the players next action.
 
     def update_fov(self) -> None:
