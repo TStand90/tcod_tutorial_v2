@@ -1,10 +1,14 @@
-from typing import Iterable, Optional
+from __future__ import annotations
+
+from typing import Iterable, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
 
-from entity import Entity
 import tile_types
+
+if TYPE_CHECKING:
+    from entity import Entity
 
 
 class GameMap:
