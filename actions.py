@@ -38,11 +38,13 @@ class ActionWithDirection(Action):
 
 class MeleeAction(ActionWithDirection):
     def perform(self, engine: Engine, entity: Entity) -> None:
+        dest_x = entity.x + self.dx
+        dest_y = entity.y + self.dy
         target = engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
         if not target:
             return  # No entity to attack.
 
-        print(f"You kick the {self.target.name}, much to its annoyance!")
+        print(f"You kick the {target.name}, much to its annoyance!")
 
 
 class MovementAction(ActionWithDirection):
