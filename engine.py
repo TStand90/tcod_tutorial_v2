@@ -10,8 +10,8 @@ from input_handlers import EventHandler
 
 
 class Engine:
-    def __init__(self, event_handler: EventHandler, game_map: GameMap, player: Entity):
-        self.event_handler = event_handler
+    def __init__(self, game_map: GameMap, player: Entity):
+        self.event_handler = EventHandler(self)
         self.game_map = game_map
         self.player = player
         self.update_fov()
@@ -27,7 +27,7 @@ class Engine:
             if action is None:
                 continue
 
-            action.perform(self, self.player)
+            action.perform()
             self.handle_enemy_turns()
             self.update_fov()  # Update the FOV before the players next action.
 
