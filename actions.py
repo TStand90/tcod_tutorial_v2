@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -8,12 +8,24 @@ if TYPE_CHECKING:
 
 
 class Action:
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    def __init__(self, engine: Engine, entity: Entity) -> None:
+        super().__init__()
+        self.engine = engine
+        self.entity = entity
+
+    @property
+    def context(self) -> Tuple[Engine, Entity]:
+        """Return the engine and entity of this action.
+
+        Useful to quickly create other actions."""
+        return self.engine, self.entity
+
+    def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
 
-        `engine` is the scope this action is being performed in.
+        `self.engine` is the scope this action is being performed in.
 
-        `entity` is the object performing the action.
+        `self.entity` is the object performing the action.
 
         This method must be overridden by Action subclasses.
         """
@@ -21,26 +33,34 @@ class Action:
 
 
 class EscapeAction(Action):
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    def perform(self) -> None:
         raise SystemExit()
 
 
 class ActionWithDirection(Action):
-    def __init__(self, dx: int, dy: int):
-        super().__init__()
+    def __init__(self, engine: Engine, entity: Entity, dx: int, dy: int):
+        super().__init__(engine, entity)
 
         self.dx = dx
         self.dy = dy
 
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    @property
+    def dest_xy(self) -> Tuple[int, int]:
+        """Returns this actions destination."""
+        return self.entity.x + self.dx, self.entity.y + self.dy
+
+    @property
+    def blocking_entity(self) -> Optional[Entity]:
+        """Return the blocking entity at this actions destination.."""
+        return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
+
+    def perform(self) -> None:
         raise NotImplementedError()
 
 
 class MeleeAction(ActionWithDirection):
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
-        target = engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
+    def perform(self) -> None:
+        target = self.blocking_entity
         if not target:
             return  # No entity to attack.
 
@@ -48,27 +68,23 @@ class MeleeAction(ActionWithDirection):
 
 
 class MovementAction(ActionWithDirection):
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
+    def perform(self) -> None:
+        dest_x, dest_y = self.dest_xy
 
-        if not engine.game_map.in_bounds(dest_x, dest_y):
+        if not self.engine.game_map.in_bounds(dest_x, dest_y):
             return  # Destination is out of bounds.
-        if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return  # Destination is blocked by a tile.
-        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             return  # Destination is blocked by an entity.
 
-        entity.move(self.dx, self.dy)
+        self.entity.move(self.dx, self.dy)
 
 
 class BumpAction(ActionWithDirection):
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
-
-        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            return MeleeAction(self.dx, self.dy).perform(engine, entity)
+    def perform(self) -> None:
+        if self.blocking_entity:
+            return MeleeAction(*self.context, self.dx, self.dy).perform()
 
         else:
-            return MovementAction(self.dx, self.dy).perform(engine, entity)
+            return MovementAction(*self.context, self.dx, self.dy).perform()
