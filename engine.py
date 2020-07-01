@@ -1,5 +1,3 @@
-from typing import Iterable, Any
-
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
@@ -19,17 +17,6 @@ class Engine:
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             print(f'The {entity.name} wonders when it will get to take a real turn.')
-
-    def handle_events(self, events: Iterable[Any]) -> None:
-        for event in events:
-            action = self.event_handler.dispatch(event)
-
-            if action is None:
-                continue
-
-            action.perform()
-            self.handle_enemy_turns()
-            self.update_fov()  # Update the FOV before the players next action.
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
