@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING
 
 import tcod.event
 
-from actions import Action, BumpAction, EscapeAction
+from actions import Action, BumpAction, EscapeAction, WaitAction
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -46,14 +46,24 @@ class MainGameEventHandler(EventHandler):
         # Common arguments for player actions.
         context = (self.engine, self.engine.player)
 
-        if key == tcod.event.K_UP:
+        if key in (tcod.event.K_UP, tcod.event.K_k):
             action = BumpAction(*context, dx=0, dy=-1)
-        elif key == tcod.event.K_DOWN:
+        elif key in (tcod.event.K_DOWN, tcod.event.K_j):
             action = BumpAction(*context, dx=0, dy=1)
-        elif key == tcod.event.K_LEFT:
+        elif key in (tcod.event.K_LEFT, tcod.event.K_h):
             action = BumpAction(*context, dx=-1, dy=0)
-        elif key == tcod.event.K_RIGHT:
+        elif key in (tcod.event.K_RIGHT, tcod.event.K_l):
             action = BumpAction(*context, dx=1, dy=0)
+        elif key == tcod.event.K_y:
+            action = BumpAction(*context, dx=-1, dy=-1)
+        elif key == tcod.event.K_u:
+            action = BumpAction(*context, dx=1, dy=-1)
+        elif key == tcod.event.K_b:
+            action = BumpAction(*context, dx=-1, dy=1)
+        elif key == tcod.event.K_n:
+            action = BumpAction(*context, dx=1, dy=1)
+        elif key == tcod.event.K_PERIOD:
+            action = WaitAction(*context)
 
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction(*context)
