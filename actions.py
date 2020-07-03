@@ -4,17 +4,17 @@ from typing import Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
+    from entity import Actor
 
 
 class Action:
-    def __init__(self, engine: Engine, entity: Entity) -> None:
+    def __init__(self, engine: Engine, entity: Actor) -> None:
         super().__init__()
         self.engine = engine
         self.entity = entity
 
     @property
-    def context(self) -> Tuple[Engine, Entity]:
+    def context(self) -> Tuple[Engine, Actor]:
         """Return the engine and entity of this action.
 
         Useful to quickly create other actions."""
@@ -37,8 +37,13 @@ class EscapeAction(Action):
         raise SystemExit()
 
 
+class WaitAction(Action):
+    def perform(self) -> None:
+        pass
+
+
 class ActionWithDirection(Action):
-    def __init__(self, engine: Engine, entity: Entity, dx: int, dy: int):
+    def __init__(self, engine: Engine, entity: Actor, dx: int, dy: int):
         super().__init__(engine, entity)
 
         self.dx = dx
@@ -50,7 +55,7 @@ class ActionWithDirection(Action):
         return self.entity.x + self.dx, self.entity.y + self.dy
 
     @property
-    def blocking_entity(self) -> Optional[Entity]:
+    def blocking_entity(self) -> Optional[Actor]:
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
@@ -64,7 +69,8 @@ class MeleeAction(ActionWithDirection):
         if not target:
             return  # No entity to attack.
 
-        print(f"You kick the {target.name}, much to its annoyance!")
+        if self.entity.fighter and target.fighter:
+            self.entity.fighter.attack(target)
 
 
 class MovementAction(ActionWithDirection):
@@ -84,7 +90,7 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity:
-            return MeleeAction(*self.context, self.dx, self.dy).perform()
+            return MeleeAction(self.engine, self.entity, self.dx, self.dy).perform()
 
         else:
-            return MovementAction(*self.context, self.dx, self.dy).perform()
+            return MovementAction(self.engine, self.entity, self.dx, self.dy).perform()

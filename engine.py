@@ -1,22 +1,39 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from entity import Entity
+from components.ai import DeadAI
+from death_functions import check_for_dead_entities
+from entity import Actor
 from game_map import GameMap
-from input_handlers import EventHandler
+from input_handlers import MainGameEventHandler
+
+if TYPE_CHECKING:
+    from input_handlers import EventHandler
 
 
 class Engine:
-    def __init__(self, game_map: GameMap, player: Entity):
-        self.event_handler = EventHandler(self)
+    def __init__(self, game_map: GameMap, player: Actor):
+        self.event_handler: EventHandler = MainGameEventHandler(self)
         self.game_map = game_map
         self.player = player
         self.update_fov()
 
     def handle_enemy_turns(self) -> None:
-        for entity in self.game_map.entities - {self.player}:
-            print(f'The {entity.name} wonders when it will get to take a real turn.')
+        for entity in self.game_map.actors - {self.player}:
+            if entity.ai is not None and not isinstance(entity.ai, DeadAI):
+                action = entity.ai.take_turn(self, self.player)
+
+                if action is None:
+                    continue
+
+                action.perform()
+
+        check_for_dead_entities(self)
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
@@ -30,6 +47,8 @@ class Engine:
 
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
+
+        console.print(x=1, y=47, string=f'HP: {self.player.fighter.hp}/{self.player.fighter.max_hp}')
 
         context.present(console)
 
