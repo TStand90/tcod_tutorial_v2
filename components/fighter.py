@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from components.base_component import BaseComponent
 
 if TYPE_CHECKING:
+    from engine import Engine
     from entity import Actor
 
 
@@ -15,14 +16,21 @@ class Fighter(BaseComponent):
         self.defense = defense
         self.power = power
 
-    def attack(self, target: Actor) -> None:
+    def attack(self, engine: Engine, target: Actor) -> None:
         damage = self.power - target.fighter.defense
 
         if damage > 0:
             target.fighter.take_damage(damage)
-            print(f'{self.parent.name.capitalize()} attacks {target.name} for {damage} hit points.')
+
+            engine.message_log.add_message(f'')
+
+            engine.message_log.add_message(
+                f'{self.parent.name.capitalize()} attacks {target.name} for {damage} hit points.'
+            )
         else:
-            print(f'{self.parent.name.capitalize()} attacks {target.name} but does no damage.')
+            engine.message_log.add_message(
+                f'{self.parent.name.capitalize()} attacks {target.name} but does no damage.'
+            )
 
     @property
     def is_dead(self) -> bool:

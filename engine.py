@@ -11,6 +11,8 @@ from death_functions import check_for_dead_entities
 from entity import Actor
 from game_map import GameMap
 from input_handlers import MainGameEventHandler
+from message_log import MessageLog
+from render_functions import render_bar, render_names_at_mouse_location
 
 if TYPE_CHECKING:
     from input_handlers import EventHandler
@@ -20,6 +22,8 @@ class Engine:
     def __init__(self, game_map: GameMap, player: Actor):
         self.event_handler: EventHandler = MainGameEventHandler(self)
         self.game_map = game_map
+        self.message_log = MessageLog(x=21, y=45, width=40, height=5)
+        self.mouse_location = (0, 0)
         self.player = player
         self.update_fov()
 
@@ -48,7 +52,16 @@ class Engine:
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
 
-        console.print(x=1, y=47, string=f'HP: {self.player.fighter.hp}/{self.player.fighter.max_hp}')
+        self.message_log.render(console=console)
+
+        render_bar(
+            console=console,
+            current_value=self.player.fighter.hp,
+            maximum_value=self.player.fighter.max_hp,
+            total_width=20
+        )
+
+        render_names_at_mouse_location(console=console, x=21, y=44, engine=self)
 
         context.present(console)
 

@@ -32,14 +32,27 @@ class Action:
         raise NotImplementedError()
 
 
+class MouseMotionAction(Action):
+    def __init__(self, engine: Engine, entity: Actor, tile_x: int, tile_y: int):
+        super().__init__(engine, entity)
+
+        self.tile_x = tile_x
+        self.tile_y = tile_y
+
+    def perform(self) -> bool:
+        self.engine.mouse_location = (self.tile_x, self.tile_y)
+
+        return False
+
+
 class EscapeAction(Action):
     def perform(self) -> None:
         raise SystemExit()
 
 
 class WaitAction(Action):
-    def perform(self) -> None:
-        pass
+    def perform(self) -> bool:
+        return True
 
 
 class ActionWithDirection(Action):
@@ -64,31 +77,35 @@ class ActionWithDirection(Action):
 
 
 class MeleeAction(ActionWithDirection):
-    def perform(self) -> None:
+    def perform(self) -> bool:
         target = self.blocking_entity
-        if not target:
-            return  # No entity to attack.
 
-        if self.entity.fighter and target.fighter:
-            self.entity.fighter.attack(target)
+        if target and self.entity.fighter and target.fighter:
+            self.entity.fighter.attack(self.engine, target)
+
+            return True
+        else:
+            return False
 
 
 class MovementAction(ActionWithDirection):
-    def perform(self) -> None:
+    def perform(self) -> bool:
         dest_x, dest_y = self.dest_xy
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            return  # Destination is out of bounds.
+            return False  # Destination is out of bounds.
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return  # Destination is blocked by a tile.
+            return False  # Destination is blocked by a tile.
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            return  # Destination is blocked by an entity.
+            return False  # Destination is blocked by an entity.
 
         self.entity.move(self.dx, self.dy)
 
+        return True
+
 
 class BumpAction(ActionWithDirection):
-    def perform(self) -> None:
+    def perform(self) -> bool:
         if self.blocking_entity:
             return MeleeAction(self.engine, self.entity, self.dx, self.dy).perform()
 

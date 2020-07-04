@@ -23,12 +23,14 @@ def kill_entity(engine: Engine, entity: Actor) -> None:
 
     if engine.player == entity:
         death_message = 'You died!'
+        death_message_color = (191, 0, 0)
         engine.event_handler = GameOverEventHandler(engine)
     else:
         death_message = f'{entity.name} is dead!'
+        death_message_color = (255, 127, 0)
         entity.blocks_movement = False
         entity.ai = DeadAI()
         entity.name = f'remains of {entity.name}'
         entity.render_order = RenderOrder.CORPSE
 
-    print(death_message)
+    engine.message_log.add_message(death_message, death_message_color)

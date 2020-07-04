@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING
 
 import tcod.event
 
-from actions import Action, BumpAction, EscapeAction, WaitAction
+from actions import Action, BumpAction, EscapeAction, MouseMotionAction, WaitAction
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -14,25 +14,34 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def __init__(self, engine: Engine):
         self.engine = engine
 
-    def handle_events(self) -> None:
+    def handle_events(self, context) -> None:
         raise NotImplementedError()
+
+    def ev_mousemotion(self, event: tcod.event.MouseMotion) -> Optional[Action]:
+        action = MouseMotionAction(self.engine, self.engine.player, tile_x=event.tile.x, tile_y=event.tile.y)
+
+        return action
 
 
 class MainGameEventHandler(EventHandler):
-    def handle_events(self) -> None:
+    def handle_events(self, context) -> None:
         from death_functions import check_for_dead_entities
 
         for event in tcod.event.wait():
+            context.convert_event(event)
+
             action = self.dispatch(event)
 
             if action is None:
                 continue
 
-            action.perform()
+            turn_passed = action.perform()
 
             check_for_dead_entities(self.engine)
 
-            self.engine.handle_enemy_turns()
+            if turn_passed:
+                self.engine.handle_enemy_turns()
+
             self.engine.update_fov()  # Update the FOV before the players next action.
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
@@ -73,7 +82,7 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-    def handle_events(self) -> None:
+    def handle_events(self, context) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
 
