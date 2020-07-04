@@ -2,21 +2,22 @@ from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from entity import Entity
+from actor import Actor
 from game_map import GameMap
 from input_handlers import EventHandler
 
 
 class Engine:
-    def __init__(self, game_map: GameMap, player: Entity):
+    game_map: GameMap
+    player: Actor
+
+    def __init__(self) -> None:
         self.event_handler = EventHandler(self)
-        self.game_map = game_map
-        self.player = player
-        self.update_fov()
 
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
-            print(f'The {entity.name} wonders when it will get to take a real turn.')
+            if isinstance(entity, Actor):
+                entity.ai.perform()
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
