@@ -5,7 +5,7 @@ from typing import Iterable, Optional, Set, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
 
-from entity import Actor
+from entity import Actor, Item
 import tile_types
 
 if TYPE_CHECKING:
@@ -24,6 +24,10 @@ class GameMap:
     @property
     def actors(self) -> Set[Actor]:
         return {entity for entity in self.entities if isinstance(entity, Actor)}
+
+    @property
+    def items(self) -> Set[Item]:
+        return {entity for entity in self.entities if isinstance(entity, Item)}
 
     def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Actor]:
         for entity in self.actors:

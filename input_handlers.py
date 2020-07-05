@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 import tcod.event
+from tcod.context import Context
 
-from actions import Action, BumpAction, EscapeAction, MouseMotionAction, WaitAction
+from actions import Action, BumpAction, EscapeAction, MenuSelectAction, MouseMotionAction, PickupAction,\
+    ShowInventoryAction, WaitAction
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -14,7 +16,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def __init__(self, engine: Engine):
         self.engine = engine
 
-    def handle_events(self, context) -> None:
+    def handle_events(self, context: Context) -> None:
         raise NotImplementedError()
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> Optional[Action]:
@@ -23,8 +25,44 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         return action
 
 
+class InventoryEventHandler(EventHandler):
+    def __init__(self, engine: Engine, dropping: bool = False):
+        super().__init__(engine)
+
+        self.dropping = dropping
+
+    def handle_events(self, context: Context) -> None:
+        for event in tcod.event.wait():
+            action = self.dispatch(event)
+
+            if action is None:
+                continue
+
+            turn_passed = action.perform()
+
+            if turn_passed:
+                self.engine.handle_enemy_turns()
+
+            self.engine.update_fov()
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        action: Optional[Action] = None
+
+        key = event.sym
+
+        if key == tcod.event.K_ESCAPE:
+            action = EscapeAction(engine=self.engine, entity=self.engine.player)
+        else:
+            index = key - ord("a")
+
+            if 0 <= index <= 26:
+                action = MenuSelectAction(engine=self.engine, entity=self.engine.player, index=index)
+
+        return action
+
+
 class MainGameEventHandler(EventHandler):
-    def handle_events(self, context) -> None:
+    def handle_events(self, context: Context) -> None:
         from death_functions import check_for_dead_entities
 
         for event in tcod.event.wait():
@@ -77,12 +115,21 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction(*context)
 
+        elif key == tcod.event.K_g:
+            action = PickupAction(*context)
+
+        elif key == tcod.event.K_i:
+            action = ShowInventoryAction(*context)
+
+        elif key == tcod.event.K_d:
+            action = ShowInventoryAction(*context, dropping=True)
+
         # No valid key was pressed
         return action
 
 
 class GameOverEventHandler(EventHandler):
-    def handle_events(self, context) -> None:
+    def handle_events(self, context: Context) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
 

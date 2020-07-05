@@ -36,5 +36,20 @@ class Fighter(BaseComponent):
     def is_dead(self) -> bool:
         return self.hp <= 0
 
+    def heal(self, amount: int) -> int:
+        if self.hp == self.max_hp:
+            return 0
+
+        new_hp_value = self.hp + amount
+
+        if new_hp_value > self.max_hp:
+            new_hp_value = self.max_hp
+
+        amount_recovered = new_hp_value - self.hp
+
+        self.hp = new_hp_value
+
+        return amount_recovered
+
     def take_damage(self, amount: int) -> None:
         self.hp -= amount

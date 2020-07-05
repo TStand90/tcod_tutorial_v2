@@ -10,9 +10,9 @@ from components.ai import DeadAI
 from death_functions import check_for_dead_entities
 from entity import Actor
 from game_map import GameMap
-from input_handlers import MainGameEventHandler
+from input_handlers import InventoryEventHandler, MainGameEventHandler
 from message_log import MessageLog
-from render_functions import render_bar, render_names_at_mouse_location
+from render_functions import render_bar, render_inventory_menu, render_names_at_mouse_location
 
 if TYPE_CHECKING:
     from input_handlers import EventHandler
@@ -53,6 +53,10 @@ class Engine:
         self.game_map.render(console)
 
         self.message_log.render(console=console)
+
+        # If the current event handler is the Inventory handler, show the inventory screen.
+        if isinstance(self.event_handler, InventoryEventHandler):
+            render_inventory_menu(console=console, engine=self)
 
         render_bar(
             console=console,
