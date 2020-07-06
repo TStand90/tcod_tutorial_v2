@@ -37,7 +37,3 @@ class Fighter(BaseComponent):
         self.entity.render_order = RenderOrder.CORPSE
 
         print(death_message)
-
-    @property
-    def is_alive(self) -> bool:
-        return self.hp > 0
