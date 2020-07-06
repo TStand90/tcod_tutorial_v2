@@ -16,11 +16,10 @@ if TYPE_CHECKING:
 
 
 class Engine:
-    def __init__(self, game_map: GameMap, player: Actor):
+    def __init__(self, player: Actor):
         self.event_handler: EventHandler = MainGameEventHandler(self)
-        self.game_map = game_map
+        self.game_map: GameMap
         self.player = player
-        self.update_fov()
 
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:

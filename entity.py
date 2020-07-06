@@ -22,6 +22,7 @@ class Entity:
 
     def __init__(
         self,
+        gamemap: Optional[GameMap] = None,
         x: int = 0,
         y: int = 0,
         char: str = "?",
@@ -30,6 +31,10 @@ class Entity:
         blocks_movement: bool = False,
         render_order: RenderOrder = RenderOrder.CORPSE
     ):
+        if gamemap:
+            # If gamemap isn't provided now then it will be set later.
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
         self.x = x
         self.y = y
         self.char = char
@@ -43,8 +48,19 @@ class Entity:
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
+        clone.gamemap = gamemap
         gamemap.entities.add(clone)
         return clone
+
+    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+        """Place this entitiy at a new location.  Handles moving across GameMaps."""
+        self.x = x
+        self.y = y
+        if gamemap:
+            if hasattr(self, "gamemap"):  # Possibly uninitialized.
+                self.gamemap.entities.remove(self)
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
     def get_first_step_towards_destination(self, target_x: int, target_y: int, game_map: GameMap) -> Tuple[int, int]:
         return self.get_path_astar(target_x, target_y, game_map)[0]
