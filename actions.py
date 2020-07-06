@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
+from entity import Actor
+
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor
+    from entity import Entity
 
 
 class Action:
@@ -52,9 +54,14 @@ class ActionWithDirection(Action):
         return self.entity.x + self.dx, self.entity.y + self.dy
 
     @property
-    def blocking_entity(self) -> Optional[Actor]:
+    def blocking_entity(self) -> Optional[Entity]:
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
+
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        """Return the actor at this actions destination."""
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
 
     def perform(self) -> None:
         raise NotImplementedError()
@@ -62,7 +69,7 @@ class ActionWithDirection(Action):
 
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
-        target = self.blocking_entity
+        target = self.target_actor
         if not target:
             return  # No entity to attack.
 
@@ -92,7 +99,7 @@ class MovementAction(ActionWithDirection):
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
-        if self.blocking_entity:
+        if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         else:
