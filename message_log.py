@@ -1,8 +1,9 @@
 from typing import List, Tuple
+import textwrap
 
 import tcod
 
-import textwrap
+import color
 
 
 class Message:
@@ -20,7 +21,7 @@ class MessageLog:
         self.height = height
 
     def add_message(
-        self, message_text: str, message_color: Tuple[int, int, int] = (255, 255, 255)
+        self, message_text: str, message_color: Tuple[int, int, int] = color.white,
     ) -> None:
         # Split the message if necessary, among multiple lines
         new_msg_lines = textwrap.wrap(message_text, self.width)
