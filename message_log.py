@@ -21,7 +21,7 @@ class MessageLog:
 
     def add_message(
         self, message_text: str, message_color: Tuple[int, int, int] = (255, 255, 255)
-    ):
+    ) -> None:
         # Split the message if necessary, among multiple lines
         new_msg_lines = textwrap.wrap(message_text, self.width)
 
@@ -33,7 +33,7 @@ class MessageLog:
             # Add the new line as a Message object, with the text and the color
             self.messages.append(Message(line, message_color))
 
-    def render(self, console: tcod.Console):
+    def render(self, console: tcod.Console) -> None:
         y_offset: int = self.y
 
         for message in self.messages:

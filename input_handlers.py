@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
-import tcod.event
+import tcod
 
 from actions import Action, BumpAction, EscapeAction, MouseMotionAction, WaitAction
 
@@ -51,7 +51,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def __init__(self, engine: Engine):
         self.engine = engine
 
-    def handle_events(self, context) -> None:
+    def handle_events(self, context: tcod.context.Context) -> None:
         raise NotImplementedError()
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> Optional[Action]:
@@ -66,7 +66,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
 
 class MainGameEventHandler(EventHandler):
-    def handle_events(self, context) -> None:
+    def handle_events(self, context: tcod.context.Context) -> None:
         for event in tcod.event.wait():
             context.convert_event(event)
 
@@ -103,7 +103,7 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-    def handle_events(self, context) -> None:
+    def handle_events(self, context: tcod.context.Context) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
 
