@@ -66,8 +66,14 @@ class MeleeAction(ActionWithDirection):
         if not target:
             return  # No entity to attack.
 
-        if self.entity.fighter and target.fighter:
-            self.entity.fighter.attack(target)
+        damage = self.entity.fighter.power - target.fighter.defense
+
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        if damage > 0:
+            print(f"{attack_desc} for {damage} hit points.")
+            target.fighter.hp -= damage
+        else:
+            print(f"{attack_desc} but does no damage.")
 
 
 class MovementAction(ActionWithDirection):

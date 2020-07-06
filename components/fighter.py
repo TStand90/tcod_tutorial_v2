@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from components.base_component import BaseComponent
 from input_handlers import GameOverEventHandler
 from render_order import RenderOrder
-
-if TYPE_CHECKING:
-    from entity import Actor
 
 
 class Fighter(BaseComponent):
@@ -26,16 +21,6 @@ class Fighter(BaseComponent):
         self._hp = max(0, min(value, self.max_hp))
         if self._hp == 0 and self.entity.ai:
             self.die()
-
-    def attack(self, target: Actor) -> None:
-        damage = self.power - target.fighter.defense
-
-        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
-        if damage > 0:
-            print(f"{attack_desc} for {damage} hit points.")
-            target.fighter.hp -= damage
-        else:
-            print(f"{attack_desc} but does no damage.")
 
     def die(self) -> None:
         if self.engine.player is self.entity:
