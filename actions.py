@@ -2,19 +2,21 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
+from entity import Actor
+
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor
+    from entity import Entity
 
 
 class Action:
-    def __init__(self, engine: Engine, entity: Actor) -> None:
+    def __init__(self, engine: Engine, entity: Entity) -> None:
         super().__init__()
         self.engine = engine
         self.entity = entity
 
     @property
-    def context(self) -> Tuple[Engine, Actor]:
+    def context(self) -> Tuple[Engine, Entity]:
         """Return the engine and entity of this action.
 
         Useful to quickly create other actions."""
@@ -43,7 +45,7 @@ class WaitAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, engine: Engine, entity: Actor, dx: int, dy: int):
+    def __init__(self, engine: Engine, entity: Entity, dx: int, dy: int):
         super().__init__(engine, entity)
 
         self.dx = dx
@@ -55,7 +57,7 @@ class ActionWithDirection(Action):
         return self.entity.x + self.dx, self.entity.y + self.dy
 
     @property
-    def blocking_entity(self) -> Optional[Actor]:
+    def blocking_entity(self) -> Optional[Entity]:
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
@@ -68,6 +70,9 @@ class MeleeAction(ActionWithDirection):
         target = self.blocking_entity
         if not target:
             return  # No entity to attack.
+
+        if not (isinstance(self.entity, Actor) and isinstance(target, Actor)):
+            return
 
         if self.entity.fighter and target.fighter:
             self.entity.fighter.attack(target)
