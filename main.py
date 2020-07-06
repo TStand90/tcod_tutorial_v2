@@ -27,17 +27,18 @@ def main() -> None:
 
     player = copy.deepcopy(entity_factories.player)
 
-    game_map = generate_dungeon(
+    engine = Engine(player=player)
+
+    engine.game_map = generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
-        player=player,
+        engine=engine,
     )
-
-    engine = Engine(game_map=game_map, player=player)
+    engine.update_fov()
 
     with tcod.context.new_terminal(
         screen_width,

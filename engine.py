@@ -6,7 +6,6 @@ from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from death_functions import check_for_dead_entities
 from entity import Actor
 from game_map import GameMap
 from input_handlers import MainGameEventHandler
@@ -16,23 +15,16 @@ if TYPE_CHECKING:
 
 
 class Engine:
-    def __init__(self, game_map: GameMap, player: Actor):
+    game_map: GameMap
+
+    def __init__(self, player: Actor):
         self.event_handler: EventHandler = MainGameEventHandler(self)
-        self.game_map = game_map
         self.player = player
-        self.update_fov()
 
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
-                action = entity.ai.take_turn(self)
-
-                if action is None:
-                    continue
-
-                action.perform()
-
-        check_for_dead_entities(self)
+                entity.ai.perform()
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
