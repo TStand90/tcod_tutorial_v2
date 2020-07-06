@@ -80,17 +80,16 @@ class MainGameEventHandler(EventHandler):
 
         key = event.sym
 
-        # Common arguments for player actions.
-        context = (self.engine, self.engine.player)
+        player = self.engine.player
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
-            action = BumpAction(*context, dx, dy)
+            action = BumpAction(player, dx, dy)
         elif key in WAIT_KEYS:
-            action = WaitAction(*context)
+            action = WaitAction(player)
 
         elif key == tcod.event.K_ESCAPE:
-            action = EscapeAction(*context)
+            action = EscapeAction(player)
 
         # No valid key was pressed
         return action
@@ -112,7 +111,7 @@ class GameOverEventHandler(EventHandler):
         key = event.sym
 
         if key == tcod.event.K_ESCAPE:
-            action = EscapeAction(self.engine, self.engine.player)
+            action = EscapeAction(self.engine.player)
 
             # No valid key was pressed
         return action

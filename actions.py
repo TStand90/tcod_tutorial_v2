@@ -8,17 +8,14 @@ if TYPE_CHECKING:
 
 
 class Action:
-    def __init__(self, engine: Engine, entity: Actor) -> None:
+    def __init__(self, entity: Actor) -> None:
         super().__init__()
-        self.engine = engine
         self.entity = entity
 
     @property
-    def context(self) -> Tuple[Engine, Actor]:
-        """Return the engine and entity of this action.
-
-        Useful to quickly create other actions."""
-        return self.engine, self.entity
+    def engine(self) -> Engine:
+        """Return the engine this action belongs to."""
+        return self.entity.gamemap.engine
 
     def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
@@ -43,8 +40,8 @@ class WaitAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, engine: Engine, entity: Actor, dx: int, dy: int):
-        super().__init__(engine, entity)
+    def __init__(self, entity: Actor, dx: int, dy: int):
+        super().__init__(entity)
 
         self.dx = dx
         self.dy = dy
@@ -90,7 +87,7 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity:
-            return MeleeAction(self.engine, self.entity, self.dx, self.dy).perform()
+            return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         else:
-            return MovementAction(self.engine, self.entity, self.dx, self.dy).perform()
+            return MovementAction(self.entity, self.dx, self.dy).perform()

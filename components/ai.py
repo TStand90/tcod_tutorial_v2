@@ -28,14 +28,14 @@ class HostileEnemy(BaseAI):
         dx = int(round(dx / distance))
         dy = int(round(dy / distance))
 
-        action: Action = WaitAction(engine, self.parent)
+        action: Action = WaitAction(self.parent)
 
         if engine.game_map.visible[self.parent.x, self.parent.y]:
             if distance >= 2:
                 destination_x, destination_y = self.parent.get_first_step_towards_destination(target.x, target.y,
                                                                                               engine.game_map)
-                action = MovementAction(engine, self.parent, destination_x - self.parent.x, destination_y - self.parent.y)
+                action = MovementAction(self.parent, destination_x - self.parent.x, destination_y - self.parent.y)
             else:
-                action = MeleeAction(engine, self.parent, dx, dy)
+                action = MeleeAction(self.parent, dx, dy)
 
         return action
