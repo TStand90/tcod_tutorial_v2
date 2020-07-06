@@ -33,10 +33,6 @@ class Entity:
         blocks_movement: bool = False,
         render_order: RenderOrder = RenderOrder.CORPSE,
     ):
-        if gamemap:
-            # If gamemap isn't provided now then it will be set later.
-            self.gamemap = gamemap
-            gamemap.entities.add(self)
         self.x = x
         self.y = y
         self.char = char
@@ -44,6 +40,10 @@ class Entity:
         self.name = name
         self.blocks_movement = blocks_movement
         self.render_order = render_order
+        if gamemap:
+            # If gamemap isn't provided now then it will be set later.
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
