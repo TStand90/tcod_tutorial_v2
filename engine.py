@@ -25,12 +25,7 @@ class Engine:
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
-                action = entity.ai.take_turn(self)
-
-                if action is None:
-                    continue
-
-                action.perform()
+                entity.ai.perform()
 
         check_for_dead_entities(self)
 

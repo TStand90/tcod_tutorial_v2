@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import List, Optional, Tuple, TypeVar, TYPE_CHECKING
+from typing import List, Optional, Tuple, Type, TypeVar, TYPE_CHECKING
 
 import tcod.path
 
@@ -63,11 +63,8 @@ class Entity:
             self.gamemap = gamemap
             gamemap.entities.add(self)
 
-    def get_first_step_towards_destination(self, target_x: int, target_y: int, game_map: GameMap) -> Tuple[int, int]:
-        return self.get_path_astar(target_x, target_y, game_map)[0]
-
-    def get_path_astar(self, target_x: int, target_y: int, game_map: GameMap) -> List[Tuple[int, int]]:
-        astar = tcod.path.AStar(game_map.tiles["walkable"])
+    def get_path_astar(self, target_x: int, target_y: int) -> List[Tuple[int, int]]:
+        astar = tcod.path.AStar(self.gamemap.tiles["walkable"])
 
         return astar.get_path(self.x, self.y, target_x, target_y)
 
@@ -86,7 +83,7 @@ class Actor(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        ai: BaseAI,
+        ai_cls: Type[BaseAI],
         fighter: Fighter
     ):
         super().__init__(
@@ -99,8 +96,7 @@ class Actor(Entity):
             render_order=RenderOrder.ACTOR
         )
 
-        self.ai: Optional[BaseAI] = ai
-        self.ai.parent = self
+        self.ai: Optional[BaseAI] = ai_cls(self)
 
         self.fighter = fighter
         self.fighter.parent = self

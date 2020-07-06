@@ -7,6 +7,8 @@ if TYPE_CHECKING:
 
 
 class BaseComponent:
+    _parent: Actor
+
     @property
     def parent(self) -> Actor:
         return self._parent
