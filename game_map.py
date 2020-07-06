@@ -31,7 +31,7 @@ class GameMap:
         yield from (
             entity
             for entity in self.entities
-            if isinstance(entity, Actor) and not entity.fighter.is_dead
+            if isinstance(entity, Actor) and entity.fighter.is_alive
         )
 
     def get_blocking_entity_at_location(

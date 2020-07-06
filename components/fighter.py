@@ -39,5 +39,5 @@ class Fighter(BaseComponent):
         print(death_message)
 
     @property
-    def is_dead(self) -> bool:
-        return self.hp <= 0
+    def is_alive(self) -> bool:
+        return self.hp > 0
