@@ -4,13 +4,12 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from entity import Actor
+    from engine import Engine
 
 
 class BaseComponent:
-    @property
-    def parent(self) -> Actor:
-        return self._parent
+    entity: Actor  # Owning entity instance.
 
-    @parent.setter
-    def parent(self, parent: Actor) -> None:
-        self._parent = parent
+    @property
+    def engine(self) -> Engine:
+        return self.entity.gamemap.engine

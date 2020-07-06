@@ -5,22 +5,20 @@ from typing import Optional, Tuple, TYPE_CHECKING
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor
+    from entity import Entity
 
 
 class Action:
-    def __init__(self, engine: Engine, entity: Actor) -> None:
+    def __init__(self, entity: Actor) -> None:
         super().__init__()
-        self.engine = engine
         self.entity = entity
 
     @property
-    def context(self) -> Tuple[Engine, Actor]:
-        """Return the engine and entity of this action.
+    def engine(self) -> Engine:
+        """Return the engine this action belongs to."""
+        return self.entity.gamemap.engine
 
-        Useful to quickly create other actions."""
-        return self.engine, self.entity
-
-    def perform(self) -> None:
+    def perform(self) -> bool:
         """Perform this action with the objects needed to determine its scope.
 
         `self.engine` is the scope this action is being performed in.
@@ -33,8 +31,8 @@ class Action:
 
 
 class MouseMotionAction(Action):
-    def __init__(self, engine: Engine, entity: Actor, tile_x: int, tile_y: int):
-        super().__init__(engine, entity)
+    def __init__(self, entity: Actor, tile_x: int, tile_y: int):
+        super().__init__(entity)
 
         self.tile_x = tile_x
         self.tile_y = tile_y
@@ -46,7 +44,7 @@ class MouseMotionAction(Action):
 
 
 class EscapeAction(Action):
-    def perform(self) -> None:
+    def perform(self) -> bool:
         raise SystemExit()
 
 
@@ -56,8 +54,8 @@ class WaitAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, engine: Engine, entity: Actor, dx: int, dy: int):
-        super().__init__(engine, entity)
+    def __init__(self, entity: Actor, dx: int, dy: int):
+        super().__init__(entity)
 
         self.dx = dx
         self.dy = dy
@@ -68,24 +66,38 @@ class ActionWithDirection(Action):
         return self.entity.x + self.dx, self.entity.y + self.dy
 
     @property
-    def blocking_entity(self) -> Optional[Actor]:
+    def blocking_entity(self) -> Optional[Entity]:
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
-    def perform(self) -> None:
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        """Return the actor at this actions destination."""
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+
+    def perform(self) -> bool:
         raise NotImplementedError()
 
 
 class MeleeAction(ActionWithDirection):
     def perform(self) -> bool:
-        target = self.blocking_entity
+        target = self.target_actor
+        if not target:
+            return False  # No entity to attack.
 
-        if target and self.entity.fighter and target.fighter:
-            self.entity.fighter.attack(self.engine, target)
+        damage = self.entity.fighter.power - target.fighter.defense
 
-            return True
+        self.engine.message_log.add_message("")
+
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        if damage > 0:
+            self.engine.message_log.add_message(
+                f"{attack_desc} for {damage} hit points."
+            )
+            target.fighter.hp -= damage
         else:
-            return False
+            self.engine.message_log.add_message(f"{attack_desc} but does no damage.")
+        return True
 
 
 class MovementAction(ActionWithDirection):
@@ -106,8 +118,8 @@ class MovementAction(ActionWithDirection):
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> bool:
-        if self.blocking_entity:
-            return MeleeAction(self.engine, self.entity, self.dx, self.dy).perform()
+        if self.target_actor:
+            return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         else:
-            return MovementAction(self.engine, self.entity, self.dx, self.dy).perform()
+            return MovementAction(self.entity, self.dx, self.dy).perform()
