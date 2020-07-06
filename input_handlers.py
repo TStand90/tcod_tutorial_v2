@@ -54,6 +54,9 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def handle_events(self) -> None:
         raise NotImplementedError()
 
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
+        raise SystemExit()
+
 
 class MainGameEventHandler(EventHandler):
     def handle_events(self) -> None:
@@ -71,9 +74,6 @@ class MainGameEventHandler(EventHandler):
 
             self.engine.handle_enemy_turns()
             self.engine.update_fov()  # Update the FOV before the players next action.
-
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
-        raise SystemExit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         action: Optional[Action] = None
