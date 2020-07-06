@@ -27,7 +27,12 @@ class GameMap:
 
     @property
     def actors(self) -> Iterator[Actor]:
-        yield from (entity for entity in self.entities if isinstance(entity, Actor))
+        """Iterate over this maps living actors."""
+        yield from (
+            entity
+            for entity in self.entities
+            if isinstance(entity, Actor) and not entity.fighter.is_dead
+        )
 
     def get_blocking_entity_at_location(
         self, location_x: int, location_y: int,
@@ -40,7 +45,7 @@ class GameMap:
 
     def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
         for actor in self.actors:
-            if actor.x == x and actor.y == y and not actor.fighter.is_dead:
+            if actor.x == x and actor.y == y:
                 return actor
 
         return None
