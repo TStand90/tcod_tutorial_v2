@@ -60,8 +60,6 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
 class MainGameEventHandler(EventHandler):
     def handle_events(self) -> None:
-        from death_functions import check_for_dead_entities
-
         for event in tcod.event.wait():
             action = self.dispatch(event)
 
@@ -69,8 +67,6 @@ class MainGameEventHandler(EventHandler):
                 continue
 
             action.perform()
-
-            check_for_dead_entities(self.engine)
 
             self.engine.handle_enemy_turns()
             self.engine.update_fov()  # Update the FOV before the players next action.

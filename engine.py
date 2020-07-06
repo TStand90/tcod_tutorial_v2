@@ -6,7 +6,6 @@ from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from death_functions import check_for_dead_entities
 from entity import Actor
 from game_map import GameMap
 from input_handlers import MainGameEventHandler
@@ -26,8 +25,6 @@ class Engine:
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
                 entity.ai.perform()
-
-        check_for_dead_entities(self)
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""

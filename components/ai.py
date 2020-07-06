@@ -3,9 +3,10 @@ from __future__ import annotations
 import math
 
 from actions import Action, MeleeAction, MovementAction, WaitAction
+from components.base_component import BaseComponent
 
 
-class BaseAI(Action):
+class BaseAI(Action, BaseComponent):
     def perform(self) -> None:
         raise NotImplementedError()
 
