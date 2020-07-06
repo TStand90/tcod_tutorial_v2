@@ -82,7 +82,7 @@ class Actor(Entity):
             render_order=RenderOrder.ACTOR
         )
 
-        self.ai = ai
+        self.ai: Optional[BaseAI] = ai
         self.ai.parent = self
 
         self.fighter = fighter

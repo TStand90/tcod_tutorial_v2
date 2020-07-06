@@ -14,17 +14,13 @@ if TYPE_CHECKING:
 
 
 class BaseAI(BaseComponent):
-    def take_turn(self, engine: Engine, target: Entity) -> Action:
+    def take_turn(self, engine: Engine) -> Action:
         raise NotImplementedError()
 
 
-class DeadAI(BaseAI):
-    def take_turn(self, engine: Engine, target: Entity) -> Action:
-        pass
-
-
 class HostileEnemy(BaseAI):
-    def take_turn(self, engine: Engine, target: Entity) -> Action:
+    def take_turn(self, engine: Engine) -> Action:
+        target = engine.player
         dx = target.x - self.parent.x
         dy = target.y - self.parent.y
         distance = math.sqrt(dx ** 2 + dy ** 2)

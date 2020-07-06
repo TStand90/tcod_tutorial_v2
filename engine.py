@@ -6,7 +6,6 @@ from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from components.ai import DeadAI
 from death_functions import check_for_dead_entities
 from entity import Actor
 from game_map import GameMap
@@ -24,9 +23,9 @@ class Engine:
         self.update_fov()
 
     def handle_enemy_turns(self) -> None:
-        for entity in self.game_map.actors - {self.player}:
-            if entity.ai is not None and not isinstance(entity.ai, DeadAI):
-                action = entity.ai.take_turn(self, self.player)
+        for entity in set(self.game_map.actors) - {self.player}:
+            if entity.ai:
+                action = entity.ai.take_turn(self)
 
                 if action is None:
                     continue
