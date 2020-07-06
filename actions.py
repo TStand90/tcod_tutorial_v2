@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
-from entity import Actor
-
 if TYPE_CHECKING:
     from engine import Engine
+    from entity import Actor
     from entity import Entity
 
 
