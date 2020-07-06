@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 
 import tcod
 
@@ -13,13 +13,15 @@ class Message:
 
 class MessageLog:
     def __init__(self, x: int, y: int, width: int, height: int):
-        self.messages = []
+        self.messages: List[Message] = []
         self.x = x
         self.y = y
         self.width = width
         self.height = height
 
-    def add_message(self, message_text: str, message_color: Tuple[int, int, int] = (255, 255, 255)):
+    def add_message(
+        self, message_text: str, message_color: Tuple[int, int, int] = (255, 255, 255)
+    ):
         # Split the message if necessary, among multiple lines
         new_msg_lines = textwrap.wrap(message_text, self.width)
 

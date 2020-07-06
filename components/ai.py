@@ -1,45 +1,35 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
 
-from actions import MeleeAction, MovementAction, WaitAction
+from actions import Action, MeleeAction, MovementAction, WaitAction
 from components.base_component import BaseComponent
 
-if TYPE_CHECKING:
-    from actions import Action
-    from engine import Engine
-    from entity import Entity
-    from game_map import GameMap
 
-
-class BaseAI(BaseComponent):
-    def take_turn(self, engine: Engine, target: Entity) -> Action:
+class BaseAI(Action, BaseComponent):
+    def perform(self) -> bool:
         raise NotImplementedError()
 
 
-class DeadAI(BaseAI):
-    def take_turn(self, engine: Engine, target: Entity) -> Action:
-        pass
-
-
 class HostileEnemy(BaseAI):
-    def take_turn(self, engine: Engine, target: Entity) -> Action:
-        dx = target.x - self.parent.x
-        dy = target.y - self.parent.y
+    def perform(self) -> bool:
+        target = self.engine.player
+        dx = target.x - self.entity.x
+        dy = target.y - self.entity.y
         distance = math.sqrt(dx ** 2 + dy ** 2)
 
         dx = int(round(dx / distance))
         dy = int(round(dy / distance))
 
-        action: Action = WaitAction(engine, self.parent)
+        action: Action = WaitAction(self.entity)
 
-        if engine.game_map.visible[self.parent.x, self.parent.y]:
+        if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance >= 2:
-                destination_x, destination_y = self.parent.get_first_step_towards_destination(target.x, target.y,
-                                                                                              engine.game_map)
-                action = MovementAction(engine, self.parent, destination_x - self.parent.x, destination_y - self.parent.y)
+                dest_x, dest_y = self.entity.get_path_astar(target.x, target.y)[0]
+                action = MovementAction(
+                    self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                )
             else:
-                action = MeleeAction(engine, self.parent, dx, dy)
+                action = MeleeAction(self.entity, dx, dy)
 
-        return action
+        return action.perform()

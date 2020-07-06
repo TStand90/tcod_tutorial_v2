@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import List, Optional, Tuple, TypeVar, TYPE_CHECKING
+from typing import List, Optional, Tuple, Type, TypeVar, TYPE_CHECKING
 
 import tcod.path
 
@@ -20,16 +20,23 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
+    gamemap: GameMap
+
     def __init__(
         self,
+        gamemap: Optional[GameMap] = None,
         x: int = 0,
         y: int = 0,
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
-        render_order: RenderOrder = RenderOrder.CORPSE
+        render_order: RenderOrder = RenderOrder.CORPSE,
     ):
+        if gamemap:
+            # If gamemap isn't provided now then it will be set later.
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
         self.x = x
         self.y = y
         self.char = char
@@ -43,14 +50,22 @@ class Entity:
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
+        clone.gamemap = gamemap
         gamemap.entities.add(clone)
         return clone
 
-    def get_first_step_towards_destination(self, target_x: int, target_y: int, game_map: GameMap) -> Tuple[int, int]:
-        return self.get_path_astar(target_x, target_y, game_map)[0]
+    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+        """Place this entitiy at a new location.  Handles moving across GameMaps."""
+        self.x = x
+        self.y = y
+        if gamemap:
+            if hasattr(self, "gamemap"):  # Possibly uninitialized.
+                self.gamemap.entities.remove(self)
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
-    def get_path_astar(self, target_x: int, target_y: int, game_map: GameMap) -> List[Tuple[int, int]]:
-        astar = tcod.path.AStar(game_map.tiles["walkable"])
+    def get_path_astar(self, target_x: int, target_y: int) -> List[Tuple[int, int]]:
+        astar = tcod.path.AStar(self.gamemap.tiles["walkable"])
 
         return astar.get_path(self.x, self.y, target_x, target_y)
 
@@ -69,7 +84,7 @@ class Actor(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        ai: BaseAI,
+        ai_cls: Type[BaseAI],
         fighter: Fighter
     ):
         super().__init__(
@@ -79,11 +94,15 @@ class Actor(Entity):
             color=color,
             name=name,
             blocks_movement=True,
-            render_order=RenderOrder.ACTOR
+            render_order=RenderOrder.ACTOR,
         )
 
-        self.ai = ai
-        self.ai.parent = self
+        self.ai: Optional[BaseAI] = ai_cls(self)
 
         self.fighter = fighter
-        self.fighter.parent = self
+        self.fighter.entity = self
+
+    @property
+    def is_alive(self) -> bool:
+        """Returns True as long as this actor can perform actions."""
+        return bool(self.ai)
