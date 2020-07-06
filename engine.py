@@ -39,7 +39,11 @@ class Engine:
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
 
-        console.print(x=1, y=47, string=f'HP: {self.player.fighter.hp}/{self.player.fighter.max_hp}')
+        console.print(
+            x=1,
+            y=47,
+            string=f"HP: {self.player.fighter.hp}/{self.player.fighter.max_hp}",
+        )
 
         context.present(console)
 

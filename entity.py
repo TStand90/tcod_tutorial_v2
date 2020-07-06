@@ -19,6 +19,7 @@ class Entity:
     """
     A generic object to represent players, enemies, items, etc.
     """
+
     gamemap: GameMap
 
     def __init__(
@@ -30,7 +31,7 @@ class Entity:
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
-        render_order: RenderOrder = RenderOrder.CORPSE
+        render_order: RenderOrder = RenderOrder.CORPSE,
     ):
         if gamemap:
             # If gamemap isn't provided now then it will be set later.
@@ -93,7 +94,7 @@ class Actor(Entity):
             color=color,
             name=name,
             blocks_movement=True,
-            render_order=RenderOrder.ACTOR
+            render_order=RenderOrder.ACTOR,
         )
 
         self.ai: Optional[BaseAI] = ai_cls(self)
