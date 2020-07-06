@@ -18,11 +18,6 @@ class BaseAI(BaseComponent):
         raise NotImplementedError()
 
 
-class DeadAI(BaseAI):
-    def take_turn(self, engine: Engine, target: Entity) -> Action:
-        pass
-
-
 class HostileEnemy(BaseAI):
     def take_turn(self, engine: Engine, target: Entity) -> Action:
         dx = target.x - self.parent.x
