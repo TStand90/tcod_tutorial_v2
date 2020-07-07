@@ -1,41 +1,73 @@
-from typing import List, Tuple
+from typing import List, Reversible, Tuple
+import textwrap
 
 import tcod
 
-import textwrap
+import color
 
 
 class Message:
-    def __init__(self, text: str, color: Tuple[int, int, int] = (0, 0, 0)):
-        self.text = text
-        self.color = color
+    def __init__(self, text: str, fg: Tuple[int, int, int]):
+        self.plain_text = text
+        self.fg = fg
+        self.count = 1
+
+    @property
+    def full_text(self) -> str:
+        """The full text of this message, including the count if necessary."""
+        if self.count > 1:
+            return f"{self.plain_text} (x{self.count})"
+        return self.plain_text
 
 
 class MessageLog:
-    def __init__(self, x: int, y: int, width: int, height: int):
+    def __init__(self) -> None:
         self.messages: List[Message] = []
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
 
     def add_message(
-        self, message_text: str, message_color: Tuple[int, int, int] = (255, 255, 255)
-    ):
-        # Split the message if necessary, among multiple lines
-        new_msg_lines = textwrap.wrap(message_text, self.width)
+        self, text: str, fg: Tuple[int, int, int] = color.white, *, stack: bool = True,
+    ) -> None:
+        """Add a message to this log.
 
-        for line in new_msg_lines:
-            # If the buffer is full, remove the first line to make room for the new one
-            if len(self.messages) == self.height:
-                del self.messages[0]
+        `text` is the message text, `fg` is the text color.
 
-            # Add the new line as a Message object, with the text and the color
-            self.messages.append(Message(line, message_color))
+        If `stack` is True then the message can stack with a previous message
+        of the same text.
+        """
+        if stack and self.messages and text == self.messages[-1].plain_text:
+            self.messages[-1].count += 1
+        else:
+            self.messages.append(Message(text, fg))
 
-    def render(self, console: tcod.Console):
-        y_offset: int = self.y
+    def render(
+        self, console: tcod.Console, x: int, y: int, width: int, height: int,
+    ) -> None:
+        """Render this log over the given area.
 
-        for message in self.messages:
-            console.print(x=self.x, y=y_offset, string=message.text, fg=message.color)
-            y_offset += 1
+        `x`, `y`, `width`, `height` is the rectangular region to render onto
+        the `console`.
+        """
+        self.render_messages(console, x, y, width, height, self.messages)
+
+    @staticmethod
+    def render_messages(
+        console: tcod.Console,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        messages: Reversible[Message],
+    ) -> None:
+        """Render the messages provided.
+
+        The `messages` are rendered starting at the last message and working
+        backwards.
+        """
+        y_offset = height - 1
+
+        for message in reversed(messages):
+            for line in reversed(textwrap.wrap(message.full_text, width)):
+                console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
+                y_offset -= 1
+                if y_offset < 0:
+                    return  # No more space to print messages.
