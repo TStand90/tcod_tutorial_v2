@@ -21,7 +21,7 @@ class Engine:
 
     def __init__(self, player: Actor):
         self.event_handler: EventHandler = MainGameEventHandler(self)
-        self.message_log = MessageLog(x=21, y=45, width=40, height=5)
+        self.message_log = MessageLog()
         self.mouse_location = (0, 0)
         self.player = player
 
@@ -43,7 +43,7 @@ class Engine:
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
 
-        self.message_log.render(console=console)
+        self.message_log.render(console=console, x=21, y=45, width=40, height=5)
 
         render_bar(
             console=console,
