@@ -7,12 +7,12 @@ from components.base_component import BaseComponent
 
 
 class BaseAI(Action, BaseComponent):
-    def perform(self) -> bool:
+    def perform(self) -> None:
         raise NotImplementedError()
 
 
 class HostileEnemy(BaseAI):
-    def perform(self) -> bool:
+    def perform(self) -> None:
         target = self.engine.player
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y

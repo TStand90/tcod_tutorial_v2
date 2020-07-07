@@ -72,10 +72,9 @@ class MainGameEventHandler(EventHandler):
             if action is None:
                 continue
 
-            turn_passed = action.perform()
+            action.perform()
 
-            if turn_passed:
-                self.engine.handle_enemy_turns()
+            self.engine.handle_enemy_turns()
 
             self.engine.update_fov()  # Update the FOV before the players next action.
 
