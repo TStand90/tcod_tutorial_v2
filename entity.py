@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import List, Optional, Tuple, Type, TypeVar, TYPE_CHECKING
-
-import tcod.path
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
 
 from render_order import RenderOrder
 
@@ -63,11 +61,6 @@ class Entity:
                 self.gamemap.entities.remove(self)
             self.gamemap = gamemap
             gamemap.entities.add(self)
-
-    def get_path_astar(self, target_x: int, target_y: int) -> List[Tuple[int, int]]:
-        astar = tcod.path.AStar(self.gamemap.tiles["walkable"])
-
-        return astar.get_path(self.x, self.y, target_x, target_y)
 
     def move(self, dx: int, dy: int) -> None:
         # Move the entity by a given amount
