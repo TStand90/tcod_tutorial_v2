@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING
 
 import tcod
 
-from actions import Action, BumpAction, EscapeAction, MouseMotionAction, WaitAction
+from actions import Action, BumpAction, EscapeAction, WaitAction
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -54,12 +54,9 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def handle_events(self, context: tcod.context.Context) -> None:
         raise NotImplementedError()
 
-    def ev_mousemotion(self, event: tcod.event.MouseMotion) -> Optional[Action]:
-        action = MouseMotionAction(
-            self.engine.player, tile_x=event.tile.x, tile_y=event.tile.y
-        )
-
-        return action
+    def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
+        if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
+            self.engine.mouse_location = event.tile.x, event.tile.y
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()

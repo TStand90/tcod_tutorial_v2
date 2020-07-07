@@ -32,19 +32,6 @@ class Action:
         raise NotImplementedError()
 
 
-class MouseMotionAction(Action):
-    def __init__(self, entity: Actor, tile_x: int, tile_y: int):
-        super().__init__(entity)
-
-        self.tile_x = tile_x
-        self.tile_y = tile_y
-
-    def perform(self) -> bool:
-        self.engine.mouse_location = (self.tile_x, self.tile_y)
-
-        return False
-
-
 class EscapeAction(Action):
     def perform(self) -> bool:
         raise SystemExit()
