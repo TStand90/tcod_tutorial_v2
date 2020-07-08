@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from entity import Actor
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
 from render_functions import render_bar, render_names_at_mouse_location
 
 if TYPE_CHECKING:
+    from entity import Actor
     from game_map import GameMap
     from input_handlers import EventHandler
 

@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 import color
 from components.base_component import BaseComponent
+from entity import Actor
 from input_handlers import GameOverEventHandler
 from render_order import RenderOrder
 
@@ -20,7 +19,7 @@ class Fighter(BaseComponent):
     @hp.setter
     def hp(self, value: int) -> None:
         self._hp = max(0, min(value, self.max_hp))
-        if self._hp == 0 and self.entity.ai:
+        if self._hp == 0 and isinstance(self.entity, Actor) and self.entity.ai:
             self.die()
 
     def die(self) -> None:
