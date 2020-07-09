@@ -5,11 +5,10 @@ from typing import TYPE_CHECKING
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from input_handlers import InventoryEventHandler, MainGameEventHandler
+from input_handlers import MainGameEventHandler
 from message_log import MessageLog
 from render_functions import (
     render_bar,
-    render_inventory_menu,
     render_names_at_mouse_location,
 )
 
@@ -47,10 +46,6 @@ class Engine:
         self.game_map.render(console)
 
         self.message_log.render(console=console, x=21, y=45, width=40, height=5)
-
-        # If the current event handler is the Inventory handler, show the inventory screen.
-        if isinstance(self.event_handler, InventoryEventHandler):
-            render_inventory_menu(console=console, engine=self)
 
         render_bar(
             console=console,

@@ -80,6 +80,54 @@ class InventoryEventHandler(EventHandler):
 
         self.dropping = dropping
 
+    def on_render(self, console: tcod.Console) -> None:
+        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
+        Will move to a different position based on where the player is located, so the player can always see where
+        they are.
+        """
+        super().on_render(console)
+        number_of_items_in_inventory = len(self.engine.player.inventory.items)
+
+        width = 20
+        height = number_of_items_in_inventory + 2
+
+        if height <= 3:
+            height = 3
+
+        # TODO: Fix these values, not quite right
+        if self.engine.player.x <= 20:
+            x = 20
+        else:
+            x = 0
+
+        if self.engine.player.y <= 20:
+            y = 20
+        else:
+            y = 0
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            title="Inventory",
+            clear=True,
+            fg=(255, 255, 255),
+            bg=(0, 0, 0),
+        )
+
+        if number_of_items_in_inventory > 0:
+            letter_index = ord("a")
+
+            for i, item in enumerate(self.engine.player.inventory.items):
+                text = f"({chr(letter_index)}) {item.name}"
+
+                console.print(x + 1, y + i + 1, text)
+
+                letter_index += 1
+        else:
+            console.print(x + 1, y + 1, "(Empty)")
+
     def handle_events(self, context: tcod.context.Context) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
