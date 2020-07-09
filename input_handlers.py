@@ -10,7 +10,6 @@ from actions import (
     EscapeAction,
     MenuSelectAction,
     PickupAction,
-    ShowInventoryAction,
     WaitAction,
 )
 
@@ -149,10 +148,11 @@ class MainGameEventHandler(EventHandler):
             action = PickupAction(player)
 
         elif key == tcod.event.K_i:
-            action = ShowInventoryAction(player)
-
+            self.engine.event_handler = InventoryEventHandler(self.engine)
         elif key == tcod.event.K_d:
-            action = ShowInventoryAction(player, dropping=True)
+            self.engine.event_handler = InventoryEventHandler(
+                self.engine, dropping=True
+            )
 
         # No valid key was pressed
         return action

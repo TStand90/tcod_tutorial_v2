@@ -108,26 +108,6 @@ class MenuSelectAction(Action):
         return False
 
 
-class ShowInventoryAction(Action):
-    def __init__(self, entity: Actor, dropping: bool = False):
-        super().__init__(entity)
-
-        self.dropping = (
-            dropping  # Denotes if the player is trying to drop an item or not
-        )
-
-    def perform(self) -> bool:
-        from input_handlers import InventoryEventHandler
-
-        # Set the event handler to the one that handles the inventory.
-        self.engine.event_handler = InventoryEventHandler(
-            engine=self.engine, dropping=self.dropping
-        )
-
-        # Opening the menu does not consume a turn.
-        return False
-
-
 class EscapeAction(Action):
     def perform(self) -> bool:
         from input_handlers import InventoryEventHandler
