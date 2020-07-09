@@ -3,14 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from engine import Engine
     from entity import Entity
 
 
 class BaseComponent:
-    @property
-    def parent(self) -> Entity:
-        return self._parent
+    entity: Entity  # Owning entity instance.
 
-    @parent.setter
-    def parent(self, parent: Entity) -> None:
-        self._parent = parent
+    @property
+    def engine(self) -> Engine:
+        return self.entity.gamemap.engine

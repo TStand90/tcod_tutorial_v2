@@ -2,25 +2,22 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
-from entity import Actor
+import color
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
+    from entity import Actor, Entity
 
 
 class Action:
-    def __init__(self, engine: Engine, entity: Entity):
+    def __init__(self, entity: Actor) -> None:
         super().__init__()
-        self.engine = engine
         self.entity = entity
 
     @property
-    def context(self) -> Tuple[Engine, Entity]:
-        """Return the engine and entity of this action.
-
-        Useful to quickly create other actions."""
-        return self.engine, self.entity
+    def engine(self) -> Engine:
+        """Return the engine this action belongs to."""
+        return self.entity.gamemap.engine
 
     def perform(self) -> bool:
         """Perform this action with the objects needed to determine its scope.
@@ -34,34 +31,23 @@ class Action:
         raise NotImplementedError()
 
 
-class MouseMotionAction(Action):
-    def __init__(self, engine: Engine, entity: Entity, tile_x: int, tile_y: int):
-        super().__init__(engine, entity)
-
-        self.tile_x = tile_x
-        self.tile_y = tile_y
-
-    def perform(self) -> bool:
-        self.engine.mouse_location = (self.tile_x, self.tile_y)
-
-        return False
-
-
 class PickupAction(Action):
-    def __init__(self, engine: Engine, entity: Actor):
-        super().__init__(engine, entity)
+    def __init__(self, entity: Actor):
+        super().__init__(entity)
 
     def perform(self) -> bool:
         actor_location_x = self.entity.x
         actor_location_y = self.entity.y
 
         for item in self.engine.game_map.items:
-            if actor_location_x == item.x and actor_location_y == item.y and isinstance(self.entity, Actor):
+            if actor_location_x == item.x and actor_location_y == item.y:
                 item_added = self.entity.inventory.add_item(item)
 
                 if item_added:
                     self.engine.game_map.entities.remove(item)
-                    self.engine.message_log.add_message(f"You picked up the {item.name}!")
+                    self.engine.message_log.add_message(
+                        f"You picked up the {item.name}!"
+                    )
 
                     return True
                 else:
@@ -75,16 +61,13 @@ class PickupAction(Action):
 
 
 class MenuSelectAction(Action):
-    def __init__(self, engine: Engine, entity: Actor, index: int):
-        super().__init__(engine, entity)
+    def __init__(self, entity: Actor, index: int):
+        super().__init__(entity)
 
         self.index = index
 
     def perform(self) -> bool:
         from input_handlers import MainGameEventHandler, InventoryEventHandler
-
-        if not isinstance(self.entity, Actor):
-            return False
 
         try:
             # Get the item at the index the player selected
@@ -92,7 +75,10 @@ class MenuSelectAction(Action):
 
             # Check if the player is trying to consume or drop an item, which can be determined by looking at the
             # "dropping" attribute in the event handler class.
-            if isinstance(self.engine.event_handler, InventoryEventHandler) and self.engine.event_handler.dropping:
+            if (
+                isinstance(self.engine.event_handler, InventoryEventHandler)
+                and self.engine.event_handler.dropping
+            ):
                 self.entity.inventory.drop(selected_item, self.engine)
 
                 # Switch the event handler back to the main game, so the inventory menu closes.
@@ -102,7 +88,9 @@ class MenuSelectAction(Action):
                 return True
             elif selected_item.consumable:
                 # Try consuming the item. It's possible the item cannot be consumed.
-                item_consumed = selected_item.consumable.consume(self.entity, self.engine)
+                item_consumed = selected_item.consumable.consume(
+                    self.entity, self.engine
+                )
 
                 if item_consumed:
                     # Remove the item from the inventory.
@@ -121,16 +109,20 @@ class MenuSelectAction(Action):
 
 
 class ShowInventoryAction(Action):
-    def __init__(self, engine: Engine, entity: Entity, dropping: bool = False):
-        super().__init__(engine, entity)
+    def __init__(self, entity: Actor, dropping: bool = False):
+        super().__init__(entity)
 
-        self.dropping = dropping  # Denotes if the player is trying to drop an item or not
+        self.dropping = (
+            dropping  # Denotes if the player is trying to drop an item or not
+        )
 
     def perform(self) -> bool:
         from input_handlers import InventoryEventHandler
 
         # Set the event handler to the one that handles the inventory.
-        self.engine.event_handler = InventoryEventHandler(engine=self.engine, dropping=self.dropping)
+        self.engine.event_handler = InventoryEventHandler(
+            engine=self.engine, dropping=self.dropping
+        )
 
         # Opening the menu does not consume a turn.
         return False
@@ -151,13 +143,13 @@ class EscapeAction(Action):
 
 
 class WaitAction(Action):
-    def perform(self) -> bool:
-        return True
+    def perform(self) -> None:
+        pass
 
 
 class ActionWithDirection(Action):
-    def __init__(self, engine: Engine, entity: Entity, dx: int, dy: int):
-        super().__init__(engine, entity)
+    def __init__(self, entity: Actor, dx: int, dy: int):
+        super().__init__(entity)
 
         self.dx = dx
         self.dy = dy
@@ -172,43 +164,58 @@ class ActionWithDirection(Action):
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
-    def perform(self) -> bool:
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        """Return the actor at this actions destination."""
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+
+    def perform(self) -> None:
         raise NotImplementedError()
 
 
 class MeleeAction(ActionWithDirection):
-    def perform(self) -> bool:
-        target = self.blocking_entity
+    def perform(self) -> None:
+        target = self.target_actor
+        if not target:
+            return  # No entity to attack.
 
-        if target and isinstance(self.entity, Actor) and isinstance(target, Actor) and self.entity.fighter\
-                and target.fighter:
-            self.entity.fighter.attack(self.engine, target)
+        damage = self.entity.fighter.power - target.fighter.defense
 
-            return True
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        if self.entity is self.engine.player:
+            attack_color = color.player_atk
         else:
-            return False
+            attack_color = color.enemy_atk
+
+        if damage > 0:
+            self.engine.message_log.add_message(
+                f"{attack_desc} for {damage} hit points.", attack_color
+            )
+            target.fighter.hp -= damage
+        else:
+            self.engine.message_log.add_message(
+                f"{attack_desc} but does no damage.", attack_color
+            )
 
 
 class MovementAction(ActionWithDirection):
-    def perform(self) -> bool:
+    def perform(self) -> None:
         dest_x, dest_y = self.dest_xy
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            return False  # Destination is out of bounds.
+            return  # Destination is out of bounds.
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return False  # Destination is blocked by a tile.
+            return  # Destination is blocked by a tile.
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            return False  # Destination is blocked by an entity.
+            return  # Destination is blocked by an entity.
 
         self.entity.move(self.dx, self.dy)
 
-        return True
-
 
 class BumpAction(ActionWithDirection):
-    def perform(self) -> bool:
-        if self.blocking_entity:
-            return MeleeAction(self.engine, self.entity, self.dx, self.dy).perform()
+    def perform(self) -> None:
+        if self.target_actor:
+            return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         else:
-            return MovementAction(self.engine, self.entity, self.dx, self.dy).perform()
+            return MovementAction(self.entity, self.dx, self.dy).perform()

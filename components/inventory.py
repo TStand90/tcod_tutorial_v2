@@ -6,10 +6,12 @@ from components.base_component import BaseComponent
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Item
+    from entity import Actor, Item
 
 
 class Inventory(BaseComponent):
+    entity: Actor
+
     def __init__(self, capacity: int):
         self.capacity = capacity
         self.items: List[Item] = []
@@ -35,6 +37,6 @@ class Inventory(BaseComponent):
 
         engine.game_map.entities.add(item)
 
-        item.x, item.y = self.parent.x, self.parent.y
+        item.x, item.y = self.entity.x, self.entity.y
 
         engine.message_log.add_message(f"You dropped the {item.name}.")
