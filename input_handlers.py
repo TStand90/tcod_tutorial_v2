@@ -4,11 +4,11 @@ from typing import Optional, TYPE_CHECKING
 
 import tcod
 
+import actions
 from actions import (
     Action,
     BumpAction,
     EscapeAction,
-    MenuSelectAction,
     PickupAction,
     WaitAction,
 )
@@ -117,14 +117,9 @@ class InventoryEventHandler(EventHandler):
         )
 
         if number_of_items_in_inventory > 0:
-            letter_index = ord("a")
-
             for i, item in enumerate(self.engine.player.inventory.items):
-                text = f"({chr(letter_index)}) {item.name}"
-
-                console.print(x + 1, y + i + 1, text)
-
-                letter_index += 1
+                item_key = chr(ord("a") + i)
+                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
@@ -135,27 +130,36 @@ class InventoryEventHandler(EventHandler):
             if action is None:
                 continue
 
-            turn_passed = action.perform()
+            action.perform()
 
-            if turn_passed:
-                self.engine.handle_enemy_turns()
+            self.engine.handle_enemy_turns()
 
             self.engine.update_fov()
 
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            break
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        action: Optional[Action] = None
-
+        player = self.engine.player
         key = event.sym
+        index = key - tcod.event.K_a
 
-        if key == tcod.event.K_ESCAPE:
-            action = EscapeAction(entity=self.engine.player)
+        if 0 <= index <= 26:
+            try:
+                selected_item = player.inventory.items[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", (255, 255, 0))
+                return None
+
+            # Check if the player is trying to consume or drop an item, which can be determined by looking at the
+            # "dropping" attribute in the event handler class.
+            if self.dropping:
+                return actions.DropItem(player, selected_item)
+            elif selected_item.consumable:
+                return actions.ConsumeItem(player, selected_item)
         else:
-            index = key - ord("a")
-
-            if 0 <= index <= 26:
-                action = MenuSelectAction(entity=self.engine.player, index=index)
-
-        return action
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+        return None
 
 
 class MainGameEventHandler(EventHandler):

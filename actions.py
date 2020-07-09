@@ -6,7 +6,7 @@ import color
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor, Entity
+    from entity import Actor, Entity, Item
 
 
 class Action:
@@ -60,66 +60,32 @@ class PickupAction(Action):
         return False
 
 
-class MenuSelectAction(Action):
-    def __init__(self, entity: Actor, index: int):
-        super().__init__(entity)
-
-        self.index = index
-
-    def perform(self) -> bool:
-        from input_handlers import MainGameEventHandler, InventoryEventHandler
-
-        try:
-            # Get the item at the index the player selected
-            selected_item = self.entity.inventory.items[self.index]
-
-            # Check if the player is trying to consume or drop an item, which can be determined by looking at the
-            # "dropping" attribute in the event handler class.
-            if (
-                isinstance(self.engine.event_handler, InventoryEventHandler)
-                and self.engine.event_handler.dropping
-            ):
-                self.entity.inventory.drop(selected_item, self.engine)
-
-                # Switch the event handler back to the main game, so the inventory menu closes.
-                self.engine.event_handler = MainGameEventHandler(engine=self.engine)
-
-                # Dropping an item takes a turn.
-                return True
-            elif selected_item.consumable:
-                # Try consuming the item. It's possible the item cannot be consumed.
-                item_consumed = selected_item.consumable.consume(
-                    self.entity, self.engine
-                )
-
-                if item_consumed:
-                    # Remove the item from the inventory.
-                    self.entity.inventory.items.remove(selected_item)
-
-                    # Switch the event handler back to the main game, so the inventory menu closes.
-                    self.engine.event_handler = MainGameEventHandler(engine=self.engine)
-
-                    # Consuming an item takes a turn.
-                    return True
-        except IndexError:
-            self.engine.message_log.add_message("Invalid entry.", (255, 255, 0))
-
-        # An item was not consumed, so don't make a turn pass.
-        return False
-
-
 class EscapeAction(Action):
     def perform(self) -> bool:
-        from input_handlers import InventoryEventHandler
+        raise SystemExit()
 
-        if isinstance(self.engine.event_handler, InventoryEventHandler):
-            from input_handlers import MainGameEventHandler
 
-            self.engine.event_handler = MainGameEventHandler(engine=self.engine)
-        else:
-            raise SystemExit()
+class ItemAction(Action):
+    def __init__(self, entity: Actor, item: Item):
+        super().__init__(entity)
+        self.item = item
 
-        return False
+    def perform(self) -> None:
+        raise NotImplementedError()
+
+
+class ConsumeItem(ItemAction):
+    def perform(self) -> None:
+        # Try consuming the item. It's possible the item cannot be consumed.
+        item_consumed = self.item.consumable.consume(self.entity, self.engine)
+
+        if item_consumed:
+            self.entity.inventory.items.remove(self.item)
+
+
+class DropItem(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.drop(self.item)
 
 
 class WaitAction(Action):
