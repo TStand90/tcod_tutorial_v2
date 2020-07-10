@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import copy
+import traceback
 
 import tcod
 
@@ -56,11 +57,16 @@ def main() -> None:
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            root_console.clear()
-            engine.event_handler.on_render(console=root_console)
-            context.present(root_console)
+            try:
+                root_console.clear()
+                engine.event_handler.on_render(console=root_console)
+                context.present(root_console)
 
-            engine.event_handler.handle_events(context)
+                engine.event_handler.handle_events(context)
+            except Exception:  # Handle exceptions in game.
+                traceback.print_exc()  # Print error to stderr.
+                # Then print the error to the message log.
+                engine.message_log.add_message(traceback.format_exc(), color.error)
 
 
 if __name__ == "__main__":

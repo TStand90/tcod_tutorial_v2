@@ -9,6 +9,13 @@ if TYPE_CHECKING:
     from entity import Actor, Entity, Item
 
 
+class Impossible(Exception):
+    """Exception raised when an action is impossible to be performed.
+
+    The reason is given as the exception message.
+    """
+
+
 class Action:
     def __init__(self, entity: Actor) -> None:
         super().__init__()
@@ -19,7 +26,7 @@ class Action:
         """Return the engine this action belongs to."""
         return self.entity.gamemap.engine
 
-    def perform(self) -> bool:
+    def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
 
         `self.engine` is the scope this action is being performed in.
@@ -32,36 +39,31 @@ class Action:
 
 
 class PickupAction(Action):
+    """Pickup an item and add it to the inventory, if there is room for it."""
+
     def __init__(self, entity: Actor):
         super().__init__(entity)
 
-    def perform(self) -> bool:
+    def perform(self) -> None:
         actor_location_x = self.entity.x
         actor_location_y = self.entity.y
+        inventory = self.entity.inventory
 
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                item_added = self.entity.inventory.add_item(item)
+                if len(inventory.items) >= inventory.capacity:
+                    raise Impossible("Your inventory is full.")
 
-                if item_added:
-                    self.engine.game_map.entities.remove(item)
-                    self.engine.message_log.add_message(
-                        f"You picked up the {item.name}!"
-                    )
+                inventory.items.append(item)
+                self.engine.game_map.entities.remove(item)
+                self.engine.message_log.add_message(f"You picked up the {item.name}!")
+                return
 
-                    return True
-                else:
-                    self.engine.message_log.add_message(f"Your inventory is full.")
-
-                    return False
-
-        self.engine.message_log.add_message(f"There is nothing here to pick up.")
-
-        return False
+        raise Impossible("There is nothing here to pick up.")
 
 
 class EscapeAction(Action):
-    def perform(self) -> bool:
+    def perform(self) -> None:
         raise SystemExit()
 
 
@@ -123,7 +125,7 @@ class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
         target = self.target_actor
         if not target:
-            return  # No entity to attack.
+            raise Impossible("Nothing to attack.")
 
         damage = self.entity.fighter.power - target.fighter.defense
 
@@ -149,11 +151,14 @@ class MovementAction(ActionWithDirection):
         dest_x, dest_y = self.dest_xy
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            return  # Destination is out of bounds.
+            # Destination is out of bounds.
+            raise Impossible("That way is blocked.")
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return  # Destination is blocked by a tile.
+            # Destination is blocked by a tile.
+            raise Impossible("That way is blocked.")
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            return  # Destination is blocked by an entity.
+            # Destination is blocked by an entity.
+            raise Impossible("That way is blocked.")
 
         self.entity.move(self.dx, self.dy)
 

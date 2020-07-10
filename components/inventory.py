@@ -15,19 +15,6 @@ class Inventory(BaseComponent):
         self.capacity = capacity
         self.items: List[Item] = []
 
-    def add_item(self, item: Item) -> bool:
-        """
-        Adds an item to the inventory, if there is room for it.
-        If the item was added, return True to represent a turn passing. If not, return False, so the player does not
-        waste a turn.
-        """
-        if len(self.items) >= self.capacity:
-            return False
-        else:
-            self.items.append(item)
-
-            return True
-
     def drop(self, item: Item) -> None:
         """
         Removes an item from the inventory and restores it to the game map, at the player's current location.

@@ -12,6 +12,7 @@ from actions import (
     PickupAction,
     WaitAction,
 )
+import color
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -130,7 +131,11 @@ class InventoryEventHandler(EventHandler):
             if action is None:
                 continue
 
-            action.perform()
+            try:
+                action.perform()
+            except actions.Impossible as exc:
+                self.engine.message_log.add_message(exc.args[0], color.impossible)
+                continue  # Skip enemy turn on exceptions.
 
             self.engine.handle_enemy_turns()
 
@@ -172,7 +177,11 @@ class MainGameEventHandler(EventHandler):
             if action is None:
                 continue
 
-            action.perform()
+            try:
+                action.perform()
+            except actions.Impossible as exc:
+                self.engine.message_log.add_message(exc.args[0], color.impossible)
+                continue  # Skip enemy turn on exceptions.
 
             self.engine.handle_enemy_turns()
 
