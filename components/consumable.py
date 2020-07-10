@@ -16,7 +16,7 @@ class Consumable(BaseComponent):
         raise NotImplementedError()
 
 
-class HealthPotion(Consumable):
+class HealingConsumable(Consumable):
     def __init__(self, amount: int):
         self.amount = amount
 
@@ -25,7 +25,7 @@ class HealthPotion(Consumable):
 
         if amount_recovered > 0:
             engine.message_log.add_message(
-                f"You consume the health potion, and recover {amount_recovered} HP!",
+                f"You consume the {self.entity.name}, and recover {amount_recovered} HP!",
                 (0, 255, 0),
             )
         else:
