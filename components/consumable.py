@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from components.base_component import BaseComponent
+from exceptions import Impossible
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -29,6 +30,6 @@ class HealingConsumable(Consumable):
                 (0, 255, 0),
             )
         else:
-            engine.message_log.add_message(f"Your health is already full.")
+            raise Impossible(f"Your health is already full.")
 
         return amount_recovered > 0

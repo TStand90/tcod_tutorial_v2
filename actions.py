@@ -3,17 +3,11 @@ from __future__ import annotations
 from typing import Optional, Tuple, TYPE_CHECKING
 
 import color
+from exceptions import Impossible
 
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
-
-
-class Impossible(Exception):
-    """Exception raised when an action is impossible to be performed.
-
-    The reason is given as the exception message.
-    """
 
 
 class Action:
