@@ -19,7 +19,7 @@ class Action:
         """Return the engine this action belongs to."""
         return self.entity.gamemap.engine
 
-    def perform(self) -> bool:
+    def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
 
         `self.engine` is the scope this action is being performed in.
@@ -35,7 +35,7 @@ class PickupAction(Action):
     def __init__(self, entity: Actor):
         super().__init__(entity)
 
-    def perform(self) -> bool:
+    def perform(self) -> None:
         actor_location_x = self.entity.x
         actor_location_y = self.entity.y
 
@@ -49,19 +49,23 @@ class PickupAction(Action):
                         f"You picked up the {item.name}!"
                     )
 
-                    return True
+                    self.engine.turn_queue.schedule(interval=1, value=self.entity)
+
+                    return
                 else:
                     self.engine.message_log.add_message(f"Your inventory is full.")
 
-                    return False
+                    self.engine.turn_queue.schedule(interval=0, value=self.entity)
+
+                    return
 
         self.engine.message_log.add_message(f"There is nothing here to pick up.")
 
-        return False
+        self.engine.turn_queue.schedule(interval=0, value=self.entity)
 
 
 class EscapeAction(Action):
-    def perform(self) -> bool:
+    def perform(self) -> None:
         raise SystemExit()
 
 
@@ -82,15 +86,19 @@ class ConsumeItem(ItemAction):
         if item_consumed:
             self.entity.inventory.items.remove(self.item)
 
+            self.engine.turn_queue.schedule(interval=1, value=self.entity)
+
 
 class DropItem(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.drop(self.item)
 
+        self.engine.turn_queue.schedule(interval=1, value=self.entity)
+
 
 class WaitAction(Action):
     def perform(self) -> None:
-        pass
+        self.engine.turn_queue.schedule(interval=1, value=self.entity)
 
 
 class ActionWithDirection(Action):
@@ -143,19 +151,34 @@ class MeleeAction(ActionWithDirection):
                 f"{attack_desc} but does no damage.", attack_color
             )
 
+        self.engine.turn_queue.schedule(interval=1, value=self.entity)
+
 
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
         dest_x, dest_y = self.dest_xy
 
+        # If the player tries an illegal move, it should not cost them a turn.
+        # Enemies will lose a turn, otherwise, a never ending loop is possible.
+        if self.entity == self.engine.player:
+            default_interval = 0
+        else:
+            default_interval = 1
+
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
+            self.engine.turn_queue.schedule(interval=default_interval, value=self.entity)
             return  # Destination is out of bounds.
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return  # Destination is blocked by a tile.
+            # return  # Destination is blocked by a tile.
+            self.engine.turn_queue.schedule(interval=default_interval, value=self.entity)
+            return
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            self.engine.turn_queue.schedule(interval=default_interval, value=self.entity)
             return  # Destination is blocked by an entity.
 
         self.entity.move(self.dx, self.dy)
+
+        self.engine.turn_queue.schedule(interval=1, value=self.entity)
 
 
 class BumpAction(ActionWithDirection):

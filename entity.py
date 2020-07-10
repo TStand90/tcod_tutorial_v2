@@ -45,6 +45,9 @@ class Entity:
             self.gamemap = gamemap
             gamemap.entities.add(self)
 
+    def __repr__(self) -> str:
+        return self.name
+
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
@@ -52,6 +55,10 @@ class Entity:
         clone.y = y
         clone.gamemap = gamemap
         gamemap.entities.add(clone)
+
+        if isinstance(self, Actor):
+            gamemap.engine.turn_queue.schedule(1, clone)
+
         return clone
 
     def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
