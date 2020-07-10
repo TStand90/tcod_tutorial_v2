@@ -130,12 +130,3 @@ class Item(Entity):
 
         self.consumable = consumable
         self.consumable.entity = self
-
-
-def register(cls: Type[Entity]) -> None:
-    assert issubclass(cls, Entity)
-
-
-register(Entity)
-register(Actor)
-register(Item)
