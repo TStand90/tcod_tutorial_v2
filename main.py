@@ -57,11 +57,11 @@ def main() -> None:
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            try:
-                root_console.clear()
-                engine.event_handler.on_render(console=root_console)
-                context.present(root_console)
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
 
+            try:
                 engine.event_handler.handle_events(context)
             except Exception:  # Handle exceptions in game.
                 traceback.print_exc()  # Print error to stderr.
