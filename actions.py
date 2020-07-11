@@ -72,11 +72,12 @@ class ItemAction(Action):
 
 class ConsumeItem(ItemAction):
     def perform(self) -> None:
-        # Try consuming the item. It's possible the item cannot be consumed.
-        item_consumed = self.item.consumable.consume(self.entity)
+        # Consume the item.
+        self.item.consumable.consume(self.entity)
 
-        if item_consumed:
-            self.entity.inventory.items.remove(self.item)
+        # Remove the consumed item from the inventory.
+        # If "Impossible" was raised, this will not be called and the item will remain in the inventory.
+        self.entity.inventory.items.remove(self.item)
 
 
 class DropItem(ItemAction):
