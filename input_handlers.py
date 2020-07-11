@@ -59,10 +59,8 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def __init__(self, engine: Engine):
         self.engine = engine
 
-    def handle_events(self, context: tcod.context.Context) -> None:
-        for event in tcod.event.wait():
-            context.convert_event(event)
-            self.handle_action(self.dispatch(event))
+    def handle_events(self, event: tcod.event.Event) -> None:
+        self.handle_action(self.dispatch(event))
 
     def handle_action(self, action: Optional[Action]) -> bool:
         """Handle actions returned from event methods.
