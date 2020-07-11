@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from tcod.console import Console
 from tcod.map import compute_fov
 
-import actions
+from exceptions import Impossible
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
 from render_functions import (
@@ -33,7 +33,7 @@ class Engine:
             if entity.ai:
                 try:
                     entity.ai.perform()
-                except actions.Impossible:
+                except Impossible:
                     pass  # Ignore impossible action exceptions from AI.
 
     def update_fov(self) -> None:

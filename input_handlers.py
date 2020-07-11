@@ -13,6 +13,7 @@ from actions import (
     WaitAction,
 )
 import color
+from exceptions import Impossible
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -133,7 +134,7 @@ class InventoryEventHandler(EventHandler):
 
             try:
                 action.perform()
-            except actions.Impossible as exc:
+            except Impossible as exc:
                 self.engine.message_log.add_message(exc.args[0], color.impossible)
                 continue  # Skip enemy turn on exceptions.
 
@@ -179,7 +180,7 @@ class MainGameEventHandler(EventHandler):
 
             try:
                 action.perform()
-            except actions.Impossible as exc:
+            except Impossible as exc:
                 self.engine.message_log.add_message(exc.args[0], color.impossible)
                 continue  # Skip enemy turn on exceptions.
 
