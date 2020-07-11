@@ -5,6 +5,7 @@ from typing import Optional, TYPE_CHECKING
 import tcod
 
 import actions
+import exceptions
 from actions import (
     Action,
     BumpAction,
@@ -72,7 +73,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
         try:
             action.perform()
-        except actions.Impossible as exc:
+        except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.impossible)
             return False  # Skip enemy turn on exceptions.
 

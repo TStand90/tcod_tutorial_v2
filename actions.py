@@ -3,17 +3,11 @@ from __future__ import annotations
 from typing import Optional, Tuple, TYPE_CHECKING
 
 import color
+from exceptions import Impossible
 
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
-
-
-class Impossible(Exception):
-    """Exception raised when an action is impossible to be performed.
-
-    The reason is given as the exception message.
-    """
 
 
 class Action:
@@ -79,7 +73,7 @@ class ItemAction(Action):
 class ConsumeItem(ItemAction):
     def perform(self) -> None:
         # Try consuming the item. It's possible the item cannot be consumed.
-        item_consumed = self.item.consumable.consume(self.entity, self.engine)
+        item_consumed = self.item.consumable.consume(self.entity)
 
         if item_consumed:
             self.entity.inventory.items.remove(self.item)
