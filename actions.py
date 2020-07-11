@@ -73,7 +73,7 @@ class ItemAction(Action):
 class ConsumeItem(ItemAction):
     def perform(self) -> None:
         # Try consuming the item. It's possible the item cannot be consumed.
-        item_consumed = self.item.consumable.consume(self.entity, self.engine)
+        item_consumed = self.item.consumable.consume(self.entity)
 
         if item_consumed:
             self.entity.inventory.items.remove(self.item)
