@@ -62,7 +62,26 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def handle_events(self, context: tcod.context.Context) -> None:
         for event in tcod.event.wait():
             context.convert_event(event)
-            self.dispatch(event)
+            self.handle_action(self.dispatch(event))
+
+    def handle_action(self, action: Optional[Action]) -> bool:
+        """Handle actions returned from event methods.
+
+        Returns True if the action will advance a turn.
+        """
+        if action is None:
+            return False
+
+        try:
+            action.perform()
+        except actions.Impossible as exc:
+            self.engine.message_log.add_message(exc.args[0], color.impossible)
+            return False  # Skip enemy turn on exceptions.
+
+        self.engine.handle_enemy_turns()
+
+        self.engine.update_fov()
+        return True
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
@@ -124,25 +143,11 @@ class InventoryEventHandler(EventHandler):
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
-    def handle_events(self, context: tcod.context.Context) -> None:
-        for event in tcod.event.wait():
-            action = self.dispatch(event)
-
-            if action is None:
-                continue
-
-            try:
-                action.perform()
-            except actions.Impossible as exc:
-                self.engine.message_log.add_message(exc.args[0], color.impossible)
-                continue  # Skip enemy turn on exceptions.
-
-            self.engine.handle_enemy_turns()
-
-            self.engine.update_fov()
-
+    def handle_action(self, action: Optional[Action]) -> bool:
+        if super().handle_action(action):
             self.engine.event_handler = MainGameEventHandler(self.engine)
-            break
+            return True
+        return False
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -168,25 +173,6 @@ class InventoryEventHandler(EventHandler):
 
 
 class MainGameEventHandler(EventHandler):
-    def handle_events(self, context: tcod.context.Context) -> None:
-        for event in tcod.event.wait():
-            context.convert_event(event)
-
-            action = self.dispatch(event)
-
-            if action is None:
-                continue
-
-            try:
-                action.perform()
-            except actions.Impossible as exc:
-                self.engine.message_log.add_message(exc.args[0], color.impossible)
-                continue  # Skip enemy turn on exceptions.
-
-            self.engine.handle_enemy_turns()
-
-            self.engine.update_fov()  # Update the FOV before the players next action.
-
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         action: Optional[Action] = None
 
@@ -220,14 +206,8 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-    def handle_events(self, context: tcod.context.Context) -> None:
-        for event in tcod.event.wait():
-            action = self.dispatch(event)
-
-            if action is None:
-                continue
-
-            action.perform()
+    def handle_action(self, action: Optional[Action]) -> bool:
+        return False
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         action: Optional[Action] = None
