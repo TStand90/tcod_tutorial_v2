@@ -17,6 +17,7 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
+    from entity import Item
 
 
 MOVE_KEYS = {
@@ -94,10 +95,12 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
 
 class InventoryEventHandler(EventHandler):
-    def __init__(self, engine: Engine, dropping: bool = False):
-        super().__init__(engine)
+    """This handler lets the user select an item.
 
-        self.dropping = dropping
+    What happens then depends on the subclass.
+    """
+
+    TITLE = "<missing title>"
 
     def on_render(self, console: tcod.Console) -> None:
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
@@ -123,19 +126,14 @@ class InventoryEventHandler(EventHandler):
         else:
             y = 0
 
-        if self.dropping:
-            title = "Select an item to drop"
-            width = 26
-        else:
-            title = "Select an item to use"
-            width = 25
+        width = len(self.TITLE) + 4
 
         console.draw_frame(
             x=x,
             y=y,
             width=width,
             height=height,
-            title=title,
+            title=self.TITLE,
             clear=True,
             fg=(255, 255, 255),
             bg=(0, 0, 0),
@@ -165,16 +163,34 @@ class InventoryEventHandler(EventHandler):
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", (255, 255, 0))
                 return None
-
-            # Check if the player is trying to consume or drop an item, which can be determined by looking at the
-            # "dropping" attribute in the event handler class.
-            if self.dropping:
-                return actions.DropItem(player, selected_item)
-            elif selected_item.consumable:
-                return actions.ConsumeItem(player, selected_item)
+            return self.on_item_selected(selected_item)
         else:
             self.engine.event_handler = MainGameEventHandler(self.engine)
         return None
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        """Called when the user selects a valid item."""
+        raise NotImplementedError()
+
+
+class InventoryActivateHandler(InventoryEventHandler):
+    """Handle using an inventory item."""
+
+    TITLE = "Select an item to use"
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        """Return the action for the selected item."""
+        return actions.ConsumeItem(self.engine.player, item)
+
+
+class InventoryDropHandler(InventoryEventHandler):
+    """Handle dropping an inventory item."""
+
+    TITLE = "Select an item to drop"
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        """Drop this item."""
+        return actions.DropItem(self.engine.player, item)
 
 
 class MainGameEventHandler(EventHandler):
@@ -200,11 +216,9 @@ class MainGameEventHandler(EventHandler):
             action = PickupAction(player)
 
         elif key == tcod.event.K_i:
-            self.engine.event_handler = InventoryEventHandler(self.engine)
+            self.engine.event_handler = InventoryActivateHandler(self.engine)
         elif key == tcod.event.K_d:
-            self.engine.event_handler = InventoryEventHandler(
-                self.engine, dropping=True
-            )
+            self.engine.event_handler = InventoryDropHandler(self.engine)
 
         # No valid key was pressed
         return action
