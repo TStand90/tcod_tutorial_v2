@@ -7,7 +7,6 @@ from render_order import RenderOrder
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
-    from components.base_component import BaseComponent
     from components.consumable import Consumable
     from components.fighter import Fighter
     from components.inventory import Inventory
@@ -21,7 +20,7 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
-    parent: Union[GameMap, BaseComponent]
+    parent: Union[GameMap, Inventory]
 
     def __init__(
         self,
