@@ -30,6 +30,10 @@ class GameMap:
         )  # Tiles the player has seen before
 
     @property
+    def gamemap(self) -> GameMap:
+        return self
+
+    @property
     def actors(self) -> Iterator[Actor]:
         """Iterate over this maps living actors."""
         yield from (
@@ -40,11 +44,7 @@ class GameMap:
 
     @property
     def items(self) -> Iterator[Item]:
-        yield from (
-            entity
-            for entity in self.entities
-            if isinstance(entity, Item)
-        )
+        yield from (entity for entity in self.entities if isinstance(entity, Item))
 
     def get_blocking_entity_at_location(
         self, location_x: int, location_y: int,

@@ -48,8 +48,10 @@ class PickupAction(Action):
                 if len(inventory.items) >= inventory.capacity:
                     raise Impossible("Your inventory is full.")
 
-                inventory.items.append(item)
                 self.engine.game_map.entities.remove(item)
+                item.parent = self.entity.inventory
+                inventory.items.append(item)
+
                 self.engine.message_log.add_message(f"You picked up the {item.name}!")
                 return
 

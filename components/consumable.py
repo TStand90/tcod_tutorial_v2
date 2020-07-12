@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class Consumable(BaseComponent):
-    entity: Item
+    parent: Item
 
     def consume(self, consumer: Actor) -> None:
         raise NotImplementedError()
@@ -25,7 +25,7 @@ class HealingConsumable(Consumable):
 
         if amount_recovered > 0:
             self.engine.message_log.add_message(
-                f"You consume the {self.entity.name}, and recover {amount_recovered} HP!",
+                f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
                 (0, 255, 0),
             )
         else:
