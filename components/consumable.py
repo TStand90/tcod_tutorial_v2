@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class Consumable(BaseComponent):
     parent: Item
 
-    def consume(self, consumer: Actor) -> bool:
+    def consume(self, consumer: Actor) -> None:
         raise NotImplementedError()
 
 
@@ -20,7 +20,7 @@ class HealingConsumable(Consumable):
     def __init__(self, amount: int):
         self.amount = amount
 
-    def consume(self, consumer: Actor) -> bool:
+    def consume(self, consumer: Actor) -> None:
         amount_recovered = consumer.fighter.heal(self.amount)
 
         if amount_recovered > 0:
@@ -30,5 +30,3 @@ class HealingConsumable(Consumable):
             )
         else:
             raise Impossible(f"Your health is already full.")
-
-        return amount_recovered > 0

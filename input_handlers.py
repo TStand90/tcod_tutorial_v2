@@ -5,7 +5,6 @@ from typing import Optional, TYPE_CHECKING
 import tcod
 
 import actions
-import exceptions
 from actions import (
     Action,
     BumpAction,
@@ -14,6 +13,7 @@ from actions import (
     WaitAction,
 )
 import color
+import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -107,7 +107,6 @@ class InventoryEventHandler(EventHandler):
         super().on_render(console)
         number_of_items_in_inventory = len(self.engine.player.inventory.items)
 
-        width = 20
         height = number_of_items_in_inventory + 2
 
         if height <= 3:
@@ -124,12 +123,19 @@ class InventoryEventHandler(EventHandler):
         else:
             y = 0
 
+        if self.dropping:
+            title = "Select an item to drop"
+            width = 26
+        else:
+            title = "Select an item to use"
+            width = 25
+
         console.draw_frame(
             x=x,
             y=y,
             width=width,
             height=height,
-            title="Inventory",
+            title=title,
             clear=True,
             fg=(255, 255, 255),
             bg=(0, 0, 0),
