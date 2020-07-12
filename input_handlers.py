@@ -110,7 +110,7 @@ class AskUserEventHandler(EventHandler):
         return False
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        """By default return to the main event handler on any key."""
+        """By default any key exits this input handler."""
         if event.sym in {  # Ignore modifier keys.
             tcod.event.K_LSHIFT,
             tcod.event.K_RSHIFT,
@@ -120,11 +120,17 @@ class AskUserEventHandler(EventHandler):
             tcod.event.K_RALT,
         }:
             return None
-        self.engine.event_handler = MainGameEventHandler(self.engine)
-        return None
+        return self.on_exit()
 
     def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
-        """By default return to the main event handler on any mouse click."""
+        """By default any mouse click exits this input handler."""
+        return self.on_exit()
+
+    def on_exit(self) -> Optional[Action]:
+        """Called when the user is trying to exit or cancel an action.
+
+        By default this returns to the main event handler.
+        """
         self.engine.event_handler = MainGameEventHandler(self.engine)
         return None
 
