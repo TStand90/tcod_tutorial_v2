@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Callable, Optional, TYPE_CHECKING
 
 import tcod
 
@@ -17,7 +17,7 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Item
+    from entity import Actor, Item
 
 
 MOVE_KEYS = {
@@ -82,6 +82,9 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.impossible)
             return False  # Skip enemy turn on exceptions.
+        except exceptions.NeedsTargetException as exc:
+            self.engine.message_log.add_message(exc.args[0], color.needs_target)
+            return False
 
         self.engine.handle_enemy_turns()
 
@@ -285,6 +288,67 @@ class LookHandler(SelectIndexHandler):
     def on_index_selected(self, x: int, y: int) -> None:
         """Return to main handler."""
         self.engine.event_handler = MainGameEventHandler(self.engine)
+
+
+class SingleRangedAttackHandler(SelectIndexHandler):
+    """Handles targeting a single enemy. Only the enemy selected will be affected."""
+
+    def __init__(self, engine: Engine, callback: Callable[[Actor], None]):
+        super().__init__(engine)
+
+        self.callback = callback
+
+    def on_index_selected(self, x: int, y: int) -> None:
+        # Try calling the callback function. If an error occurs, print it to the message log, and don't revert
+        # back to the main game state.
+        try:
+            self.callback(self.engine.player)
+        except exceptions.Impossible as exc:
+            self.engine.message_log.add_message(exc.args[0], color.impossible)
+            return
+
+        # The function succeeded, so revert the game state and let the enemies move.
+        self.on_exit()
+        self.engine.handle_enemy_turns()
+
+
+class AreaRangedAttackHandler(SelectIndexHandler):
+    """Handles targeting an area within a given radius. Any entity within the area will be affected."""
+
+    def __init__(self, engine: Engine, radius: int, callback: Callable[[Actor], None]):
+        super().__init__(engine)
+
+        self.radius = radius
+        self.callback = callback
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Highlight the tile under the cursor."""
+        super().on_render(console)
+
+        x, y = self.engine.mouse_location
+
+        # Draw a rectangle around the targeted area, so the player can see the affected tiles.
+        console.draw_frame(
+            x=x - self.radius - 1,
+            y=y - self.radius - 1,
+            width=self.radius ** 2,
+            height=self.radius ** 2,
+            fg=color.red,
+            clear=False,
+        )
+
+    def on_index_selected(self, x: int, y: int) -> None:
+        # Try calling the callback function. If an error occurs, print it to the message log, and don't revert
+        # back to the main game state.
+        try:
+            self.callback(self.engine.player)
+        except exceptions.Impossible as exc:
+            self.engine.message_log.add_message(exc.args[0], color.impossible)
+            return
+
+        # The function succeeded, so revert the game state and let the enemies move.
+        self.on_exit()
+        self.engine.handle_enemy_turns()
 
 
 class MainGameEventHandler(EventHandler):

@@ -3,3 +3,9 @@ class Impossible(Exception):
 
     The reason is given as the exception message.
     """
+
+
+class NeedsTargetException(Exception):
+    """
+
+    """
