@@ -58,11 +58,6 @@ class PickupAction(Action):
         raise exceptions.Impossible("There is nothing here to pick up.")
 
 
-class EscapeAction(Action):
-    def perform(self) -> None:
-        raise SystemExit()
-
-
 class ItemAction(Action):
     def __init__(self, entity: Actor, item: Item):
         super().__init__(entity)
