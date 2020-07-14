@@ -318,6 +318,14 @@ class MainGameEventHandler(EventHandler):
 
 class GameOverEventHandler(EventHandler):
     def handle_action(self, action: Optional[Action]) -> bool:
+        if action is None:
+            return False
+
+        try:
+            action.perform()
+        except exceptions.Impossible as exc:
+            self.engine.message_log.add_message(exc.args[0], color.impossible)
+
         return False
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
