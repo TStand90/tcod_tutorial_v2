@@ -156,16 +156,12 @@ class InventoryEventHandler(AskUserEventHandler):
         if height <= 3:
             height = 3
 
-        # TODO: Fix these values, not quite right
-        if self.engine.player.x <= 20:
-            x = 20
+        if self.engine.player.x <= 30:
+            x = 40
         else:
             x = 0
 
-        if self.engine.player.y <= 20:
-            y = 20
-        else:
-            y = 0
+        y = 0
 
         width = len(self.TITLE) + 4
 
