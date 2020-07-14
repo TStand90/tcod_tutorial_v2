@@ -8,7 +8,6 @@ import actions
 from actions import (
     Action,
     BumpAction,
-    EscapeAction,
     PickupAction,
     WaitAction,
 )
@@ -159,16 +158,12 @@ class InventoryEventHandler(AskUserEventHandler):
         if height <= 3:
             height = 3
 
-        # TODO: Fix these values, not quite right
-        if self.engine.player.x <= 20:
-            x = 20
+        if self.engine.player.x <= 30:
+            x = 40
         else:
             x = 0
 
-        if self.engine.player.y <= 20:
-            y = 20
-        else:
-            y = 0
+        y = 0
 
         width = len(self.TITLE) + 4
 
@@ -366,7 +361,7 @@ class MainGameEventHandler(EventHandler):
             action = WaitAction(player)
 
         elif key == tcod.event.K_ESCAPE:
-            action = EscapeAction(player)
+            raise SystemExit()
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer(self.engine)
 
@@ -385,19 +380,9 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-    def handle_action(self, action: Optional[Action]) -> bool:
-        return False
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        action: Optional[Action] = None
-
-        key = event.sym
-
-        if key == tcod.event.K_ESCAPE:
-            action = EscapeAction(self.engine.player)
-
-        # No valid key was pressed
-        return action
+    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+        if event.sym == tcod.event.K_ESCAPE:
+            raise SystemExit()
 
 
 CURSOR_Y_KEYS = {

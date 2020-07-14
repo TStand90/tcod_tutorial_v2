@@ -107,7 +107,7 @@ class HealingConsumable(Consumable):
         if amount_recovered > 0:
             self.engine.message_log.add_message(
                 f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
-                (0, 255, 0),
+                color.health_recovered,
             )
         else:
             raise Impossible(f"Your health is already full.")
