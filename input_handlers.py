@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Optional, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, TYPE_CHECKING
 
 import tcod
 
@@ -16,7 +16,7 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor, Item
+    from entity import Item
 
 
 MOVE_KEYS = {
@@ -81,9 +81,6 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.impossible)
             return False  # Skip enemy turn on exceptions.
-        except exceptions.NeedsTargetException as exc:
-            self.engine.message_log.add_message(exc.args[0], color.needs_target)
-            return False
 
         self.engine.handle_enemy_turns()
 
@@ -211,7 +208,7 @@ class InventoryActivateHandler(InventoryEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Return the action for the selected item."""
-        return actions.ConsumeItem(self.engine.player, item)
+        return item.consumable.get_action(self.engine.player)
 
 
 class InventoryDropHandler(InventoryEventHandler):
@@ -288,29 +285,26 @@ class LookHandler(SelectIndexHandler):
 class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
 
-    def __init__(self, engine: Engine, callback: Callable[[Actor], None]):
+    def __init__(
+        self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]
+    ):
         super().__init__(engine)
 
         self.callback = callback
 
-    def on_index_selected(self, x: int, y: int) -> None:
-        # Try calling the callback function. If an error occurs, print it to the message log, and don't revert
-        # back to the main game state.
-        try:
-            self.callback(self.engine.player)
-        except exceptions.Impossible as exc:
-            self.engine.message_log.add_message(exc.args[0], color.impossible)
-            return
-
-        # The function succeeded, so revert the game state and let the enemies move.
-        self.on_exit()
-        self.engine.handle_enemy_turns()
+    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        return self.callback((x, y))
 
 
 class AreaRangedAttackHandler(SelectIndexHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected."""
 
-    def __init__(self, engine: Engine, radius: int, callback: Callable[[Actor], None]):
+    def __init__(
+        self,
+        engine: Engine,
+        radius: int,
+        callback: Callable[[Tuple[int, int]], Optional[Action]],
+    ):
         super().__init__(engine)
 
         self.radius = radius
@@ -332,18 +326,8 @@ class AreaRangedAttackHandler(SelectIndexHandler):
             clear=False,
         )
 
-    def on_index_selected(self, x: int, y: int) -> None:
-        # Try calling the callback function. If an error occurs, print it to the message log, and don't revert
-        # back to the main game state.
-        try:
-            self.callback(self.engine.player)
-        except exceptions.Impossible as exc:
-            self.engine.message_log.add_message(exc.args[0], color.impossible)
-            return
-
-        # The function succeeded, so revert the game state and let the enemies move.
-        self.on_exit()
-        self.engine.handle_enemy_turns()
+    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        return self.callback((x, y))
 
 
 class MainGameEventHandler(EventHandler):
