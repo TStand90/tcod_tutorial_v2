@@ -59,22 +59,23 @@ class PickupAction(Action):
 
 
 class ItemAction(Action):
-    def __init__(self, entity: Actor, item: Item):
+    def __init__(
+        self, entity: Actor, item: Item, target_xy: Optional[Tuple[int, int]] = None
+    ):
         super().__init__(entity)
         self.item = item
+        if not target_xy:
+            target_xy = entity.x, entity.y
+        self.target_xy = target_xy
+
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        """Return the actor at this actions destination."""
+        return self.engine.game_map.get_actor_at_location(*self.target_xy)
 
     def perform(self) -> None:
-        raise NotImplementedError()
-
-
-class ConsumeItem(ItemAction):
-    def perform(self) -> None:
-        # Consume the item.
-        self.item.consumable.consume(self.entity)
-
-        # Remove the consumed item from the inventory.
-        # If "Impossible" was raised, this will not be called and the item will remain in the inventory.
-        self.entity.inventory.items.remove(self.item)
+        """Invoke the items ability, this action will be given to provide context."""
+        self.item.consumable.activate(self)
 
 
 class DropItem(ItemAction):
