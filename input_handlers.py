@@ -208,7 +208,7 @@ class InventoryActivateHandler(InventoryEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Return the action for the selected item."""
-        return actions.ConsumeItem(self.engine.player, item)
+        return item.consumable.get_action(self.engine.player)
 
 
 class InventoryDropHandler(InventoryEventHandler):
