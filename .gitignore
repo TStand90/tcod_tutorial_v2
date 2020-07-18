@@ -12,3 +12,6 @@ __pycache__
 
 # Python virtual environment
 venv
+
+# Saved games
+*.sav
