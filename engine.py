@@ -61,5 +61,6 @@ class Engine:
 
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""
+        save_data = lzma.compress(pickle.dumps(self))
         with open(filename, "wb") as f:
-            f.write(lzma.compress(pickle.dumps(self)))
+            f.write(save_data)
