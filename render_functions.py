@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
 
 import color
 
@@ -36,6 +36,17 @@ def render_bar(
     console.print(
         x=1, y=45, string=f"HP: {current_value}/{maximum_value}", fg=color.bar_text
     )
+
+
+def render_dungeon_level(
+    console: Console, dungeon_level: int, location: Tuple[int, int]
+) -> None:
+    """
+    Render the level the player is currently on, at the given location.
+    """
+    x, y = location
+
+    console.print(x=x, y=y, string=f"Dungeon level: {dungeon_level}")
 
 
 def render_names_at_mouse_location(
