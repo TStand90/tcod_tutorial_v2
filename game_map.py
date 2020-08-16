@@ -141,7 +141,5 @@ class GameWorld:
             room_max_size=self.room_max_size,
             map_width=self.map_width,
             map_height=self.map_height,
-            max_monsters_per_room=self.max_monsters_per_room,
-            max_items_per_room=self.max_items_per_room,
             engine=self.engine,
         )
