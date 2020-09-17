@@ -43,7 +43,7 @@ class Level(BaseComponent):
 
         if self.requires_level_up:
             self.engine.message_log.add_message(
-                f"You advance to level {self.current_level}!"
+                f"You advance to level {self.current_level + 1}!"
             )
 
     def increase_level(self) -> None:
