@@ -41,12 +41,12 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
 }
 
 
-def get_weight_for_floor(
-    weighted_chances_by_floor: List[Tuple[int, int]], floor: int
+def get_max_value_for_floor(
+    max_value_by_floor: List[Tuple[int, int]], floor: int
 ) -> int:
     current_value = 0
 
-    for floor_minimum, value in weighted_chances_by_floor:
+    for floor_minimum, value in max_value_by_floor:
         if floor_minimum > floor:
             break
         else:
@@ -113,10 +113,10 @@ class RectangularRoom:
 
 def place_entities(room: RectangularRoom, dungeon: GameMap, floor_number: int,) -> None:
     number_of_monsters = random.randint(
-        0, get_weight_for_floor(max_monsters_by_floor, floor_number)
+        0, get_max_value_for_floor(max_monsters_by_floor, floor_number)
     )
     number_of_items = random.randint(
-        0, get_weight_for_floor(max_items_by_floor, floor_number)
+        0, get_max_value_for_floor(max_items_by_floor, floor_number)
     )
 
     monsters: List[Entity] = get_entities_at_random(
