@@ -117,6 +117,9 @@ class AskUserEventHandler(EventHandler):
             tcod.event.K_RCTRL,
             tcod.event.K_LALT,
             tcod.event.K_RALT,
+            tcod.event.K_LGUI,
+            tcod.event.K_RGUI,
+            tcod.event.K_MODE,
         }:
             return None
         return self.on_exit()
