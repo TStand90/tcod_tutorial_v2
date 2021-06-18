@@ -1,4 +1,13 @@
 {
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyArgs": [
+        "--strict",
+        "--follow-imports=silent",
+        "--show-column-numbers"
+    ],
     "editor.formatOnSave": true,
     "python.formatting.provider": "black",
     "editor.codeActionsOnSave": {
