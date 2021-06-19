@@ -1,18 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 import lzma
 import pickle
-from typing import TYPE_CHECKING
 
 from tcod.console import Console
 from tcod.map import compute_fov
 
-import exceptions
 from message_log import MessageLog
-from render_functions import (
-    render_bar,
-    render_names_at_mouse_location,
-)
+from render_functions import render_bar, render_names_at_mouse_location
+import exceptions
 
 if TYPE_CHECKING:
     from entity import Actor

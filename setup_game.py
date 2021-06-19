@@ -1,20 +1,19 @@
 """Handle the loading and initialization of game sessions."""
 from __future__ import annotations
 
+from typing import Optional
 import copy
 import lzma
 import pickle
 import traceback
-from typing import Optional
 
 import tcod
 
-import color
 from engine import Engine
+from procgen import generate_dungeon
+import color
 import entity_factories
 import input_handlers
-from procgen import generate_dungeon
-
 
 # Load the background image and remove the alpha channel.
 background_image = tcod.image.load("menu_background.png")[:, :, :3]
@@ -48,9 +47,7 @@ def new_game() -> Engine:
     )
     engine.update_fov()
 
-    engine.message_log.add_message(
-        "Hello and welcome, adventurer, to yet another dungeon!", color.welcome_text
-    )
+    engine.message_log.add_message("Hello and welcome, adventurer, to yet another dungeon!", color.welcome_text)
     return engine
 
 
@@ -85,9 +82,7 @@ class MainMenu(input_handlers.BaseEventHandler):
         )
 
         menu_width = 24
-        for i, text in enumerate(
-            ["[N] Play a new game", "[C] Continue last game", "[Q] Quit"]
-        ):
+        for i, text in enumerate(["[N] Play a new game", "[C] Continue last game", "[Q] Quit"]):
             console.print(
                 console.width // 2,
                 console.height // 2 - 2 + i,
@@ -98,9 +93,7 @@ class MainMenu(input_handlers.BaseEventHandler):
                 bg_blend=tcod.BKGND_ALPHA(64),
             )
 
-    def ev_keydown(
-        self, event: tcod.event.KeyDown
-    ) -> Optional[input_handlers.BaseEventHandler]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[input_handlers.BaseEventHandler]:
         if event.sym in (tcod.event.K_q, tcod.event.K_ESCAPE):
             raise SystemExit()
         elif event.sym == tcod.event.K_c:

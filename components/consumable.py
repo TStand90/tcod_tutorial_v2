@@ -1,18 +1,14 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
+from components.base_component import BaseComponent
+from exceptions import Impossible
+from input_handlers import ActionOrHandler, AreaRangedAttackHandler, SingleRangedAttackHandler
 import actions
 import color
 import components.ai
 import components.inventory
-from components.base_component import BaseComponent
-from exceptions import Impossible
-from input_handlers import (
-    ActionOrHandler,
-    AreaRangedAttackHandler,
-    SingleRangedAttackHandler,
-)
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -45,9 +41,7 @@ class ConfusionConsumable(Consumable):
         self.number_of_turns = number_of_turns
 
     def get_action(self, consumer: Actor) -> SingleRangedAttackHandler:
-        self.engine.message_log.add_message(
-            "Select a target location.", color.needs_target
-        )
+        self.engine.message_log.add_message("Select a target location.", color.needs_target)
         return SingleRangedAttackHandler(
             self.engine,
             callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
@@ -69,7 +63,9 @@ class ConfusionConsumable(Consumable):
             color.status_effect_applied,
         )
         target.ai = components.ai.ConfusedEnemy(
-            entity=target, previous_ai=target.ai, turns_remaining=self.number_of_turns,
+            entity=target,
+            previous_ai=target.ai,
+            turns_remaining=self.number_of_turns,
         )
         self.consume()
 
@@ -80,9 +76,7 @@ class FireballDamageConsumable(Consumable):
         self.radius = radius
 
     def get_action(self, consumer: Actor) -> AreaRangedAttackHandler:
-        self.engine.message_log.add_message(
-            "Select a target location.", color.needs_target
-        )
+        self.engine.message_log.add_message("Select a target location.", color.needs_target)
         return AreaRangedAttackHandler(
             self.engine,
             radius=self.radius,
@@ -124,7 +118,7 @@ class HealingConsumable(Consumable):
             )
             self.consume()
         else:
-            raise Impossible(f"Your health is already full.")
+            raise Impossible("Your health is already full.")
 
 
 class LightningDamageConsumable(Consumable):
