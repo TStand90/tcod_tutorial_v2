@@ -1,5 +1,5 @@
 from tcod.console import Console
-import numpy as np  # type: ignore
+import numpy as np
 
 import tile_types
 
