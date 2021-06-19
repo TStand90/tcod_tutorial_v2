@@ -51,7 +51,7 @@ def place_entities(room: RectangularRoom, dungeon: GameMap, maximum_monsters: in
             else:
                 entity_factories.troll.spawn(dungeon, x, y)
 
-    for i in range(number_of_items):
+    for _ in range(number_of_items):
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
