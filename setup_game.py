@@ -17,7 +17,7 @@ import entity_factories
 import input_handlers
 
 # Load the background image.  Pillow returns an object convertable into a NumPy array.
-background_image = Image.open("menu_background.png")
+background_image = Image.open("data/menu_background.png")
 
 
 def new_game() -> Engine:
