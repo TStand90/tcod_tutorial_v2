@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import tcod
 
+from actions import Action, BumpAction, PickupAction, WaitAction
 import actions
-from actions import (
-    Action,
-    BumpAction,
-    PickupAction,
-    WaitAction,
-)
 import color
 import exceptions
 
@@ -347,9 +342,7 @@ class HistoryViewer(EventHandler):
 
         # Draw a frame with a custom banner title.
         log_console.draw_frame(0, 0, log_console.width, log_console.height)
-        log_console.print_box(
-            0, 0, log_console.width, 1, "┤Message history├", alignment=tcod.CENTER
-        )
+        log_console.print_box(0, 0, log_console.width, 1, "┤Message history├", alignment=tcod.CENTER)
 
         # Render the message log using the cursor parameter.
         self.engine.message_log.render_messages(

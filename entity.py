@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Optional, Tuple, Type, TypeVar, Union
 import copy
-from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 
 from render_order import RenderOrder
 

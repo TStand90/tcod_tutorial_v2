@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import List, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple
 
-import numpy as np  # type: ignore
+import numpy as np
 import tcod
 
 from actions import Action, MeleeAction, MovementAction, WaitAction
@@ -65,7 +65,9 @@ class HostileEnemy(BaseAI):
         if self.path:
             dest_x, dest_y = self.path.pop(0)
             return MovementAction(
-                self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                self.entity,
+                dest_x - self.entity.x,
+                dest_y - self.entity.y,
             ).perform()
 
         return WaitAction(self.entity).perform()

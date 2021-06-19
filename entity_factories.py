@@ -4,7 +4,6 @@ from components.fighter import Fighter
 from components.inventory import Inventory
 from entity import Actor, Item
 
-
 player = Actor(
     char="@",
     color=(255, 255, 255),
