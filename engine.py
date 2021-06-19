@@ -1,7 +1,7 @@
-from typing import Set, Iterable, Any
+from typing import Any, Iterable, Set
 
-from tcod.context import Context
 from tcod.console import Console
+from tcod.context import Context
 from tcod.map import compute_fov
 
 from entity import Entity

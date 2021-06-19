@@ -1,5 +1,5 @@
-import numpy as np  # type: ignore
 from tcod.console import Console
+import numpy as np
 
 import tile_types
 
@@ -24,8 +24,8 @@ class GameMap:
         If it isn't, but it's in the "explored" array, then draw it with the "dark" colors.
         Otherwise, the default is "SHROUD".
         """
-        console.tiles_rgb[0:self.width, 0:self.height] = np.select(
+        console.rgb[0 : self.width, 0 : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=tile_types.SHROUD
+            default=tile_types.SHROUD,
         )
