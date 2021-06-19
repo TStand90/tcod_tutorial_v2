@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Optional, Tuple, Type, TypeVar
 import copy
-from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
 
 from render_order import RenderOrder
 
@@ -78,7 +78,7 @@ class Actor(Entity):
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         ai_cls: Type[BaseAI],
-        fighter: Fighter
+        fighter: Fighter,
     ):
         super().__init__(
             x=x,

@@ -24,9 +24,7 @@ class MessageLog:
     def __init__(self) -> None:
         self.messages: List[Message] = []
 
-    def add_message(
-        self, text: str, fg: Tuple[int, int, int] = color.white, *, stack: bool = True,
-    ) -> None:
+    def add_message(self, text: str, fg: Tuple[int, int, int] = color.white, *, stack: bool = True) -> None:
         """Add a message to this log.
 
         `text` is the message text, `fg` is the text color.
@@ -39,9 +37,7 @@ class MessageLog:
         else:
             self.messages.append(Message(text, fg))
 
-    def render(
-        self, console: tcod.Console, x: int, y: int, width: int, height: int,
-    ) -> None:
+    def render(self, console: tcod.Console, x: int, y: int, width: int, height: int) -> None:
         """Render this log over the given area.
 
         `x`, `y`, `width`, `height` is the rectangular region to render onto
@@ -51,12 +47,7 @@ class MessageLog:
 
     @staticmethod
     def render_messages(
-        console: tcod.Console,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-        messages: Reversible[Message],
+        console: tcod.Console, x: int, y: int, width: int, height: int, messages: Reversible[Message]
     ) -> None:
         """Render the messages provided.
 
