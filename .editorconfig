@@ -1,0 +1,27 @@
+# https://EditorConfig.org
+
+# This config file ensures consistent whitespace handling across multiple editors.
+# Allows for things such as treating tabs as spaces for the current project without having to change your global
+# preferences.  It also allows files to have different indentation based on their file type.
+
+# Your editor might need a plugin for this or it might already support .editorconfig files.
+
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.json]
+indent_style = space
+indent_size = 4
+insert_final_newline = false
+
+[*.yml]
+indent_style = space
+indent_size = 2

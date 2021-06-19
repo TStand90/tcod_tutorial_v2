@@ -5,8 +5,8 @@ import tcod
 
 import color
 import exceptions
-import setup_game
 import input_handlers
+import setup_game
 
 
 def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
@@ -20,15 +20,13 @@ def main() -> None:
     screen_width = 80
     screen_height = 50
 
-    tileset = tcod.tileset.load_tilesheet(
-        "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
-    )
+    tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
 
-    with tcod.context.new_terminal(
-        screen_width,
-        screen_height,
+    with tcod.context.new(
+        columns=screen_width,
+        rows=screen_height,
         tileset=tileset,
         title="Yet Another Roguelike Tutorial",
         vsync=True,
@@ -48,9 +46,7 @@ def main() -> None:
                     traceback.print_exc()  # Print error to stderr.
                     # Then print the error to the message log.
                     if isinstance(handler, input_handlers.EventHandler):
-                        handler.engine.message_log.add_message(
-                            traceback.format_exc(), color.error
-                        )
+                        handler.engine.message_log.add_message(traceback.format_exc(), color.error)
         except exceptions.QuitWithoutSaving:
             raise
         except SystemExit:  # Save and quit.
