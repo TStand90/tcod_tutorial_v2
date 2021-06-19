@@ -12,6 +12,7 @@ defaults:
 env:
   python-version: "3.8"
   pyinstaller-version: "4.3"
+  project-name: roguelike-tutorial
 
 jobs:
   package:
@@ -21,11 +22,24 @@ jobs:
       matrix:
         include:
           - os: windows-2019
+            platform-name: windows.x64
           - os: macos-10.15
+            platform-name: macos.x64
           - os: ubuntu-20.04
+            platform-name: linux.x64
+    env:
+      archive-name: roguelike-tutorial-${{ matrix.platform-name }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        # fetch-depth=0 and v1 are needed for 'git describe' to work correctly.
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - name: Set archive name
+        run: |
+          ARCHIVE_NAME=${{ env.project-name }}-`git describe --always`-${{ matrix.platform-name }}
+          echo "Archive name set to: $ARCHIVE_NAME"
+          echo "archive-name=$ARCHIVE_NAME" >> $GITHUB_ENV
       - name: Set up Python ${{ env.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -45,24 +59,26 @@ jobs:
           PYTHONHASHSEED: 42 # Try to ensure deterministic results.
         run: |
           pyinstaller build.spec
+      # This step exists for debugging.  Such as checking if data files were included correctly by PyInstaller.
       - name: List distribution files
         run: |
           find dist
+      # Archive the PyInstaller build using the appropriate tool for the platform.
       - name: Tar files
         if: runner.os != 'Windows'
         run: |
-          tar --format=ustar -czvf ${{matrix.os}}.tar.gz dist/*/
+          tar --format=ustar -czvf ${{ env.archive-name }}.tar.gz dist/*/
       - name: Archive files
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Compress-Archive dist/*/ ${{matrix.os}}.zip
+          Compress-Archive dist/*/ ${{ env.archive-name }}.zip
       # Upload archives as artifacts, these can be downloaded from the GitHub actions page.
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
-          name: dist
-          path: ${{matrix.os}}.*
+          name: automated-builds
+          path: ${{ env.archive-name }}.*
           retention-days: 7
           if-no-files-found: error
       # If a tag is pushed then a new archives are uploaded to GitHub Releases automatically.
@@ -71,7 +87,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{matrix.os}}.*
+          file: ${{ env.archive-name }}.*
           file_glob: true
           tag: ${{ github.ref }}
           overwrite: true
