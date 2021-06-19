@@ -40,7 +40,7 @@ class RectangularRoom:
 def place_entities(room: RectangularRoom, dungeon: GameMap, maximum_monsters: int) -> None:
     number_of_monsters = random.randint(0, maximum_monsters)
 
-    for i in range(number_of_monsters):
+    for _ in range(number_of_monsters):
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
