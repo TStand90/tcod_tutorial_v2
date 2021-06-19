@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-from typing import Callable, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional, Tuple
 
 import tcod
 
+from actions import Action, BumpAction, PickupAction, WaitAction
 import actions
-from actions import (
-    Action,
-    BumpAction,
-    PickupAction,
-    WaitAction,
-)
 import color
 import exceptions
 
@@ -117,6 +112,9 @@ class AskUserEventHandler(EventHandler):
             tcod.event.K_RCTRL,
             tcod.event.K_LALT,
             tcod.event.K_RALT,
+            tcod.event.K_LGUI,
+            tcod.event.K_RGUI,
+            tcod.event.K_MODE,
         }:
             return None
         return self.on_exit()
@@ -285,9 +283,7 @@ class LookHandler(SelectIndexHandler):
 class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
 
-    def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]
-    ):
+    def __init__(self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]):
         super().__init__(engine)
 
         self.callback = callback
@@ -392,9 +388,7 @@ class HistoryViewer(EventHandler):
 
         # Draw a frame with a custom banner title.
         log_console.draw_frame(0, 0, log_console.width, log_console.height)
-        log_console.print_box(
-            0, 0, log_console.width, 1, "┤Message history├", alignment=tcod.CENTER
-        )
+        log_console.print_box(0, 0, log_console.width, 1, "┤Message history├", alignment=tcod.CENTER)
 
         # Render the message log using the cursor parameter.
         self.engine.message_log.render_messages(
