@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Iterator, List, Tuple
 import random
-from typing import Iterator, List, Tuple, TYPE_CHECKING
 
 import tcod
 
 from game_map import GameMap
 import tile_types
-
 
 if TYPE_CHECKING:
     from entity import Entity
@@ -34,17 +33,10 @@ class RectangularRoom:
 
     def intersects(self, other: RectangularRoom) -> bool:
         """Return True if this room overlaps with another RectangularRoom."""
-        return (
-            self.x1 <= other.x2
-            and self.x2 >= other.x1
-            and self.y1 <= other.y2
-            and self.y2 >= other.y1
-        )
+        return self.x1 <= other.x2 and self.x2 >= other.x1 and self.y1 <= other.y2 and self.y2 >= other.y1
 
 
-def tunnel_between(
-    start: Tuple[int, int], end: Tuple[int, int]
-) -> Iterator[Tuple[int, int]]:
+def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     """Return an L-shaped tunnel between these two points."""
     x1, y1 = start
     x2, y2 = end
