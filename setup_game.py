@@ -7,6 +7,7 @@ import lzma
 import pickle
 import traceback
 
+from PIL import Image  # type: ignore
 import tcod
 
 from engine import Engine
@@ -15,8 +16,8 @@ import color
 import entity_factories
 import input_handlers
 
-# Load the background image and remove the alpha channel.
-background_image = tcod.image.load("menu_background.png")[:, :, :3]
+# Load the background image.  Pillow returns an object convertable into a NumPy array.
+background_image = Image.open("menu_background.png")
 
 
 def new_game() -> Engine:
