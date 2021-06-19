@@ -4,8 +4,8 @@ import copy
 import tcod
 
 from engine import Engine
-import entity_factories
 from procgen import generate_dungeon
+import entity_factories
 
 
 def main() -> None:
@@ -18,12 +18,9 @@ def main() -> None:
     room_max_size = 10
     room_min_size = 6
     max_rooms = 30
-
     max_monsters_per_room = 2
 
-    tileset = tcod.tileset.load_tilesheet(
-        "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
-    )
+    tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     player = copy.deepcopy(entity_factories.player)
 
@@ -40,9 +37,9 @@ def main() -> None:
     )
     engine.update_fov()
 
-    with tcod.context.new_terminal(
-        screen_width,
-        screen_height,
+    with tcod.context.new(
+        columns=screen_width,
+        rows=screen_height,
         tileset=tileset,
         title="Yet Another Roguelike Tutorial",
         vsync=True,
