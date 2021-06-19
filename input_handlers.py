@@ -108,6 +108,7 @@ class MainGameEventHandler(EventHandler):
 class GameOverEventHandler(EventHandler):
     def handle_events(self, context: tcod.context.Context) -> None:
         for event in tcod.event.wait():
+            context.convert_event(event)
             action = self.dispatch(event)
 
             if action is None:
