@@ -167,11 +167,11 @@ class InventoryEventHandler(AskUserEventHandler):
             y=y,
             width=width,
             height=height,
-            title=self.TITLE,
             clear=True,
             fg=(255, 255, 255),
             bg=(0, 0, 0),
         )
+        console.print(x + 1, y, f" {self.TITLE} ", fg=(0, 0, 0), bg=(255, 255, 255))
 
         if number_of_items_in_inventory > 0:
             for i, item in enumerate(self.engine.player.inventory.items):
