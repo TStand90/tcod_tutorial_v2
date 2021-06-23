@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterator, List, Tuple
+from typing import Iterator, List, Tuple
 import random
 
 import tcod
 
-from game_map import GameMap
-import tile_types
-
-if TYPE_CHECKING:
-    from entity import Entity
+import engine.entity
+import engine.game_map
+import engine.tile_types
 
 
 class RectangularRoom:
@@ -60,10 +58,10 @@ def generate_dungeon(
     room_max_size: int,
     map_width: int,
     map_height: int,
-    player: Entity,
-) -> GameMap:
+    player: engine.entity.Entity,
+) -> engine.game_map.GameMap:
     """Generate a new dungeon map."""
-    dungeon = GameMap(map_width, map_height)
+    dungeon = engine.game_map.GameMap(map_width, map_height)
 
     rooms: List[RectangularRoom] = []
 
@@ -83,7 +81,7 @@ def generate_dungeon(
         # If there are no intersections then the room is valid.
 
         # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = tile_types.floor
+        dungeon.tiles[new_room.inner] = engine.tile_types.floor
 
         if len(rooms) == 0:
             # The first room, where the player starts.
@@ -91,7 +89,7 @@ def generate_dungeon(
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = tile_types.floor
+                dungeon.tiles[x, y] = engine.tile_types.floor
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
