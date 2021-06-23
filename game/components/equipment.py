@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
-from components.base_component import BaseComponent
 from equipment_types import EquipmentType
-
-if TYPE_CHECKING:
-    from entity import Actor, Item
+from game.components.base_component import BaseComponent
+import game.entity
 
 
 class Equipment(BaseComponent):
-    parent: Actor
+    parent: game.entity.Actor
 
-    def __init__(self, weapon: Optional[Item] = None, armor: Optional[Item] = None):
+    def __init__(self, weapon: Optional[game.entity.Item] = None, armor: Optional[game.entity.Item] = None):
         self.weapon = weapon
         self.armor = armor
 
@@ -40,7 +38,7 @@ class Equipment(BaseComponent):
 
         return bonus
 
-    def item_is_equipped(self, item: Item) -> bool:
+    def item_is_equipped(self, item: game.entity.Item) -> bool:
         return self.weapon == item or self.armor == item
 
     def unequip_message(self, item_name: str) -> None:
@@ -49,7 +47,7 @@ class Equipment(BaseComponent):
     def equip_message(self, item_name: str) -> None:
         self.parent.gamemap.engine.message_log.add_message(f"You equip the {item_name}.")
 
-    def equip_to_slot(self, slot: str, item: Item, add_message: bool) -> None:
+    def equip_to_slot(self, slot: str, item: game.entity.Item, add_message: bool) -> None:
         current_item = getattr(self, slot)
 
         if current_item is not None:
@@ -68,7 +66,7 @@ class Equipment(BaseComponent):
 
         setattr(self, slot, None)
 
-    def toggle_equip(self, equippable_item: Item, add_message: bool = True) -> None:
+    def toggle_equip(self, equippable_item: game.entity.Item, add_message: bool = True) -> None:
         if equippable_item.equippable and equippable_item.equippable.equipment_type == EquipmentType.WEAPON:
             slot = "weapon"
         else:
