@@ -1,8 +1,8 @@
-from components.ai import HostileEnemy
-from components.consumable import HealingConsumable
-from components.fighter import Fighter
-from components.inventory import Inventory
-from entity import Actor, Item
+from game.components.ai import HostileEnemy
+from game.components.consumable import HealingConsumable
+from game.components.fighter import Fighter
+from game.components.inventory import Inventory
+from game.entity import Actor, Item
 
 player = Actor(
     char="@",
