@@ -1,17 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from components.base_component import BaseComponent
-from input_handlers import GameOverEventHandler
-from render_order import RenderOrder
-
-if TYPE_CHECKING:
-    from entity import Actor
+from engine.render_order import RenderOrder
+import engine.entity
 
 
 class Fighter(BaseComponent):
-    entity: Actor
+    entity: engine.entity.Actor
 
     def __init__(self, hp: int, defense: int, power: int):
         self.max_hp = hp
@@ -30,9 +25,9 @@ class Fighter(BaseComponent):
             self.die()
 
     def die(self) -> None:
-        if self.engine.player is self.entity:
+        if self.engine_.player is self.entity:
             death_message = "You died!"
-            self.engine.event_handler = GameOverEventHandler(self.engine)
+            self.engine_.event_handler = engine.input_handlers.GameOverEventHandler(self.engine_)
         else:
             death_message = f"{self.entity.name} is dead!"
 

@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple, Type, TypeVar
+from typing import Optional, Tuple, Type, TypeVar
 import copy
 
-from render_order import RenderOrder
-
-if TYPE_CHECKING:
-    from components.ai import BaseAI
-    from components.fighter import Fighter
-    from game_map import GameMap
+import components.ai
+import components.fighter
+import engine.game_map
+import engine.render_order
 
 T = TypeVar("T", bound="Entity")
 
@@ -18,18 +16,18 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
-    gamemap: GameMap
+    gamemap: engine.game_map.GameMap
 
     def __init__(
         self,
-        gamemap: Optional[GameMap] = None,
+        gamemap: Optional[engine.game_map.GameMap] = None,
         x: int = 0,
         y: int = 0,
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
-        render_order: RenderOrder = RenderOrder.CORPSE,
+        render_order: engine.render_order.RenderOrder = engine.render_order.RenderOrder.CORPSE,
     ):
         self.x = x
         self.y = y
@@ -43,7 +41,7 @@ class Entity:
             self.gamemap = gamemap
             gamemap.entities.add(self)
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+    def spawn(self: T, gamemap: engine.game_map.GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x
@@ -52,7 +50,7 @@ class Entity:
         gamemap.entities.add(clone)
         return clone
 
-    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+    def place(self, x: int, y: int, gamemap: Optional[engine.game_map.GameMap] = None) -> None:
         """Place this entitiy at a new location.  Handles moving across GameMaps."""
         self.x = x
         self.y = y
@@ -77,8 +75,8 @@ class Actor(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        ai_cls: Type[BaseAI],
-        fighter: Fighter,
+        ai_cls: Type[components.ai.BaseAI],
+        fighter: components.fighter.Fighter,
     ):
         super().__init__(
             x=x,
@@ -87,10 +85,10 @@ class Actor(Entity):
             color=color,
             name=name,
             blocks_movement=True,
-            render_order=RenderOrder.ACTOR,
+            render_order=engine.render_order.RenderOrder.ACTOR,
         )
 
-        self.ai: Optional[BaseAI] = ai_cls(self)
+        self.ai: Optional[components.ai.BaseAI] = ai_cls(self)
 
         self.fighter = fighter
         self.fighter.entity = self

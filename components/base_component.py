@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from engine import Engine
-    from entity import Entity
+import engine.entity
 
 
 class BaseComponent:
-    entity: Entity  # Owning entity instance.
+    entity: engine.entity.Entity  # Owning entity instance.
 
     @property
-    def engine(self) -> Engine:
+    def engine_(self) -> engine.engine.Engine:
         return self.entity.gamemap.engine
