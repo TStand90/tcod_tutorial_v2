@@ -5,8 +5,8 @@ from typing import List, Tuple
 import numpy as np
 import tcod
 
-from components.base_component import BaseComponent
-from game.actions import Action, MeleeAction, Move, WaitAction
+from game.actions import Action
+from game.components.base_component import BaseComponent
 import game.actions
 import game.entity
 
@@ -60,16 +60,16 @@ class HostileEnemy(BaseAI):
 
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance <= 1:
-                return MeleeAction(self.entity, dx, dy).perform()
+                return game.actions.MeleeAction(self.entity, dx, dy).perform()
 
             self.path = self.get_path_to(target.x, target.y)
 
         if self.path:
             dest_x, dest_y = self.path.pop(0)
-            return Move(
+            return game.actions.Move(
                 self.entity,
                 dest_x - self.entity.x,
                 dest_y - self.entity.y,
             ).perform()
 
-        return WaitAction(self.entity).perform()
+        return game.actions.WaitAction(self.entity).perform()

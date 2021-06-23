@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from components.base_component import BaseComponent
-from game.render_order import RenderOrder
+from game.components.base_component import BaseComponent
 import game.entity
+import game.render_order
 
 
 class Fighter(BaseComponent):
@@ -36,6 +36,6 @@ class Fighter(BaseComponent):
         self.entity.blocks_movement = False
         self.entity.ai = None
         self.entity.name = f"remains of {self.entity.name}"
-        self.entity.render_order = RenderOrder.CORPSE
+        self.entity.render_order = game.render_order.RenderOrder.CORPSE
 
         print(death_message)

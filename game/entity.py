@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Optional, Tuple, Type, TypeVar
 import copy
 
-import components.ai
-import components.fighter
+import game.components.ai
+import game.components.fighter
 import game.game_map
 import game.render_order
 
@@ -75,8 +75,8 @@ class Actor(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        ai_cls: Type[components.ai.BaseAI],
-        fighter: components.fighter.Fighter,
+        ai_cls: Type[game.components.ai.BaseAI],
+        fighter: game.components.fighter.Fighter,
     ):
         super().__init__(
             x=x,
@@ -88,7 +88,7 @@ class Actor(Entity):
             render_order=game.render_order.RenderOrder.ACTOR,
         )
 
-        self.ai: Optional[components.ai.BaseAI] = ai_cls(self)
+        self.ai: Optional[game.components.ai.BaseAI] = ai_cls(self)
 
         self.fighter = fighter
         self.fighter.entity = self
