@@ -3,15 +3,15 @@ import traceback
 
 import tcod
 
-import color
-import exceptions
-import input_handlers
-import setup_game
+import game.color
+import game.exceptions
+import game.input_handlers
+import game.setup_game
 
 
-def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
+def save_game(handler: game.input_handlers.BaseEventHandler, filename: str) -> None:
     """If the current event handler has an active Engine then save it."""
-    if isinstance(handler, input_handlers.EventHandler):
+    if isinstance(handler, game.input_handlers.EventHandler):
         handler.engine.save_as(filename)
         print("Game saved.")
 
@@ -22,7 +22,7 @@ def main() -> None:
 
     tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
+    handler: game.input_handlers.BaseEventHandler = game.setup_game.MainMenu()
 
     with tcod.context.new(
         columns=screen_width,
@@ -45,9 +45,9 @@ def main() -> None:
                 except Exception:  # Handle exceptions in game.
                     traceback.print_exc()  # Print error to stderr.
                     # Then print the error to the message log.
-                    if isinstance(handler, input_handlers.EventHandler):
-                        handler.engine.message_log.add_message(traceback.format_exc(), color.error)
-        except exceptions.QuitWithoutSaving:
+                    if isinstance(handler, game.input_handlers.EventHandler):
+                        handler.engine.message_log.add_message(traceback.format_exc(), game.color.error)
+        except game.exceptions.QuitWithoutSaving:
             raise
         except SystemExit:  # Save and quit.
             save_game(handler, "savegame.sav")
