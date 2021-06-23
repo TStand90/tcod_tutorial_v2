@@ -4,7 +4,6 @@
     "python.linting.flake8Enabled": true,
     "python.linting.mypyEnabled": true,
     "python.linting.mypyArgs": [
-        "--strict",
         "--follow-imports=silent",
         "--show-column-numbers"
     ],

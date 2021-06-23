@@ -1,5 +1,6 @@
-from typing import Tuple
+from typing import Any, Tuple
 
+from numpy.typing import NDArray
 import numpy as np
 
 # Tile graphics structured type compatible with Console.tiles_rgb.
@@ -28,7 +29,7 @@ def new_tile(
     transparent: int,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
-) -> np.ndarray:
+) -> NDArray[Any]:
     """Helper function for defining individual tile types"""
     return np.array((walkable, transparent, dark, light), dtype=tile_dt)
 
