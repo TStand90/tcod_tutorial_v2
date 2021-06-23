@@ -7,7 +7,7 @@ import tcod
 
 import engine.entity
 import engine.game_map
-import engine.tile_types
+import engine.tiles
 
 
 class RectangularRoom:
@@ -81,7 +81,7 @@ def generate_dungeon(
         # If there are no intersections then the room is valid.
 
         # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = engine.tile_types.floor
+        dungeon.tiles[new_room.inner] = engine.tiles.floor
 
         if len(rooms) == 0:
             # The first room, where the player starts.
@@ -89,7 +89,7 @@ def generate_dungeon(
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = engine.tile_types.floor
+                dungeon.tiles[x, y] = engine.tiles.floor
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
