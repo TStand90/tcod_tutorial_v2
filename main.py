@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import tcod
 
-import engine.actions
-import engine.input_handlers
+import game.actions
+import game.input_handlers
 
 
 def main() -> None:
@@ -14,7 +14,7 @@ def main() -> None:
 
     tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    event_handler = engine.input_handlers.EventHandler()
+    event_handler = game.input_handlers.EventHandler()
 
     with tcod.context.new(
         columns=screen_width,
@@ -37,11 +37,11 @@ def main() -> None:
                 if action is None:
                     continue
 
-                if isinstance(action, engine.actions.Move):
+                if isinstance(action, game.actions.Move):
                     player_x += action.dx
                     player_y += action.dy
 
-                elif isinstance(action, engine.actions.Escape):
+                elif isinstance(action, game.actions.Escape):
                     raise SystemExit()
 
 
