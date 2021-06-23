@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from engine import Engine
-    from entity import Entity
+import game.engine
+import game.entity
 
 
 class Action:
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         """Perform this action with the objects needed to determine its scope.
 
         `engine` is the scope this action is being performed in.
@@ -20,19 +17,19 @@ class Action:
         raise NotImplementedError()
 
 
-class EscapeAction(Action):
-    def perform(self, engine: Engine, entity: Entity) -> None:
+class Escape(Action):
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         raise SystemExit()
 
 
-class MovementAction(Action):
+class Move(Action):
     def __init__(self, dx: int, dy: int):
         super().__init__()
 
         self.dx = dx
         self.dy = dy
 
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
 

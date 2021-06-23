@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import tcod
 
-from engine import Engine
-from entity import Entity
-from game_map import GameMap
-from input_handlers import EventHandler
+import game.actions
+import game.engine
+import game.entity
+import game.game_map
+import game.input_handlers
 
 
 def main() -> None:
@@ -16,15 +17,15 @@ def main() -> None:
 
     tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    event_handler = EventHandler()
+    event_handler = game.input_handlers.EventHandler()
 
-    player = Entity(int(screen_width / 2), int(screen_height / 2), "@", (255, 255, 255))
-    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), "@", (255, 255, 0))
+    player = game.entity.Entity(int(screen_width / 2), int(screen_height / 2), "@", (255, 255, 255))
+    npc = game.entity.Entity(int(screen_width / 2 - 5), int(screen_height / 2), "@", (255, 255, 0))
     entities = {npc, player}
 
-    game_map = GameMap(map_width, map_height)
+    game_map = game.game_map.GameMap(map_width, map_height)
 
-    engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
+    engine = game.engine.Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 
     with tcod.context.new(
         columns=screen_width,
