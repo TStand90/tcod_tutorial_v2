@@ -1,15 +1,20 @@
 from typing import Any, Iterable, Set
 
-from tcod.console import Console
-from tcod.context import Context
+import tcod
 
-from entity import Entity
-from game_map import GameMap
-from input_handlers import EventHandler
+import engine.entity
+import engine.game_map
+import engine.input_handlers
 
 
 class Engine:
-    def __init__(self, entities: Set[Entity], event_handler: EventHandler, game_map: GameMap, player: Entity):
+    def __init__(
+        self,
+        entities: Set[engine.entity.Entity],
+        event_handler: engine.input_handlers.EventHandler,
+        game_map: engine.game_map.GameMap,
+        player: engine.entity.Entity,
+    ):
         self.entities = entities
         self.event_handler = event_handler
         self.game_map = game_map
@@ -24,7 +29,7 @@ class Engine:
 
             action.perform(self, self.player)
 
-    def render(self, console: Console, context: Context) -> None:
+    def render(self, console: tcod.Console, context: tcod.context.Context) -> None:
         self.game_map.render(console)
 
         for entity in self.entities:
