@@ -5,8 +5,8 @@ import copy
 
 import components.ai
 import components.fighter
-import engine.game_map
-import engine.render_order
+import game.game_map
+import game.render_order
 
 T = TypeVar("T", bound="Entity")
 
@@ -16,18 +16,18 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
-    gamemap: engine.game_map.GameMap
+    gamemap: game.game_map.GameMap
 
     def __init__(
         self,
-        gamemap: Optional[engine.game_map.GameMap] = None,
+        gamemap: Optional[game.game_map.GameMap] = None,
         x: int = 0,
         y: int = 0,
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
-        render_order: engine.render_order.RenderOrder = engine.render_order.RenderOrder.CORPSE,
+        render_order: game.render_order.RenderOrder = game.render_order.RenderOrder.CORPSE,
     ):
         self.x = x
         self.y = y
@@ -41,7 +41,7 @@ class Entity:
             self.gamemap = gamemap
             gamemap.entities.add(self)
 
-    def spawn(self: T, gamemap: engine.game_map.GameMap, x: int, y: int) -> T:
+    def spawn(self: T, gamemap: game.game_map.GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x
@@ -50,7 +50,7 @@ class Entity:
         gamemap.entities.add(clone)
         return clone
 
-    def place(self, x: int, y: int, gamemap: Optional[engine.game_map.GameMap] = None) -> None:
+    def place(self, x: int, y: int, gamemap: Optional[game.game_map.GameMap] = None) -> None:
         """Place this entitiy at a new location.  Handles moving across GameMaps."""
         self.x = x
         self.y = y
@@ -85,7 +85,7 @@ class Actor(Entity):
             color=color,
             name=name,
             blocks_movement=True,
-            render_order=engine.render_order.RenderOrder.ACTOR,
+            render_order=game.render_order.RenderOrder.ACTOR,
         )
 
         self.ai: Optional[components.ai.BaseAI] = ai_cls(self)

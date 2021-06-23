@@ -4,8 +4,8 @@ from typing import Optional
 
 import tcod.event
 
-import engine.actions
-import engine.engine
+import game.actions
+import game.engine
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -44,14 +44,14 @@ WAIT_KEYS = {
 }
 
 
-class EventHandler(tcod.event.EventDispatch[engine.actions.Action]):
-    def __init__(self, engine: engine.engine.Engine):
+class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
+    def __init__(self, engine: game.engine.Engine):
         self.engine = engine
 
     def handle_events(self) -> None:
         raise NotImplementedError()
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[engine.actions.Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
         raise SystemExit()
 
 
@@ -68,8 +68,8 @@ class MainGameEventHandler(EventHandler):
             self.engine.handle_enemy_turns()
             self.engine.update_fov()  # Update the FOV before the players next action.
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[engine.actions.Action]:
-        action: Optional[engine.actions.Action] = None
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+        action: Optional[game.actions.Action] = None
 
         key = event.sym
 
@@ -77,12 +77,12 @@ class MainGameEventHandler(EventHandler):
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
-            action = engine.actions.Bump(player, dx, dy)
+            action = game.actions.Bump(player, dx, dy)
         elif key in WAIT_KEYS:
-            action = engine.actions.WaitAction(player)
+            action = game.actions.WaitAction(player)
 
         elif key == tcod.event.K_ESCAPE:
-            action = engine.actions.Escape(player)
+            action = game.actions.Escape(player)
 
         # No valid key was pressed
         return action
@@ -98,13 +98,13 @@ class GameOverEventHandler(EventHandler):
 
             action.perform()
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[engine.actions.Action]:
-        action: Optional[engine.actions.Action] = None
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+        action: Optional[game.actions.Action] = None
 
         key = event.sym
 
         if key == tcod.event.K_ESCAPE:
-            action = engine.actions.Escape(self.engine.player)
+            action = game.actions.Escape(self.engine.player)
 
         # No valid key was pressed
         return action

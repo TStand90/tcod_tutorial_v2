@@ -6,13 +6,13 @@ import numpy as np
 import tcod
 
 from components.base_component import BaseComponent
-from engine.actions import Action, MeleeAction, Move, WaitAction
-import engine.actions
-import engine.entity
+from game.actions import Action, MeleeAction, Move, WaitAction
+import game.actions
+import game.entity
 
 
 class BaseAI(Action, BaseComponent):
-    entity: engine.entity.Actor
+    entity: game.entity.Actor
 
     def perform(self) -> None:
         raise NotImplementedError()
@@ -48,17 +48,17 @@ class BaseAI(Action, BaseComponent):
 
 
 class HostileEnemy(BaseAI):
-    def __init__(self, entity: engine.entity.Actor):
+    def __init__(self, entity: game.entity.Actor):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        target = self.engine_.player
+        target = self.engine.player
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-        if self.engine_.game_map.visible[self.entity.x, self.entity.y]:
+        if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance <= 1:
                 return MeleeAction(self.entity, dx, dy).perform()
 

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from components.base_component import BaseComponent
-from engine.render_order import RenderOrder
-import engine.entity
+from game.render_order import RenderOrder
+import game.entity
 
 
 class Fighter(BaseComponent):
-    entity: engine.entity.Actor
+    entity: game.entity.Actor
 
     def __init__(self, hp: int, defense: int, power: int):
         self.max_hp = hp
@@ -25,9 +25,9 @@ class Fighter(BaseComponent):
             self.die()
 
     def die(self) -> None:
-        if self.engine_.player is self.entity:
+        if self.engine.player is self.entity:
             death_message = "You died!"
-            self.engine_.event_handler = engine.input_handlers.GameOverEventHandler(self.engine_)
+            self.engine.event_handler = game.input_handlers.GameOverEventHandler(self.engine)
         else:
             death_message = f"{self.entity.name} is dead!"
 

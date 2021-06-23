@@ -2,24 +2,24 @@ from __future__ import annotations
 
 from typing import Optional, Tuple
 
-import engine.engine
-import engine.entity
+import game.engine
+import game.entity
 
 
 class Action:
-    def __init__(self, entity: engine.entity.Actor) -> None:
+    def __init__(self, entity: game.entity.Actor) -> None:
         super().__init__()
         self.entity = entity
 
     @property
-    def engine_(self) -> engine.engine.Engine:
+    def engine(self) -> game.engine.Engine:
         """Return the engine this action belongs to."""
         return self.entity.gamemap.engine
 
     def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
 
-        `self.engine_` is the scope this action is being performed in.
+        `self.engine` is the scope this action is being performed in.
 
         `self.entity` is the object performing the action.
 
@@ -39,7 +39,7 @@ class WaitAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: engine.entity.Actor, dx: int, dy: int):
+    def __init__(self, entity: game.entity.Actor, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -51,14 +51,14 @@ class ActionWithDirection(Action):
         return self.entity.x + self.dx, self.entity.y + self.dy
 
     @property
-    def blocking_entity(self) -> Optional[engine.entity.Entity]:
+    def blocking_entity(self) -> Optional[game.entity.Entity]:
         """Return the blocking entity at this actions destination.."""
-        return self.engine_.game_map.get_blocking_entity_at_location(*self.dest_xy)
+        return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
     @property
-    def target_actor(self) -> Optional[engine.entity.Actor]:
+    def target_actor(self) -> Optional[game.entity.Actor]:
         """Return the actor at this actions destination."""
-        return self.engine_.game_map.get_actor_at_location(*self.dest_xy)
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
 
     def perform(self) -> None:
         raise NotImplementedError()
@@ -84,11 +84,11 @@ class Move(ActionWithDirection):
     def perform(self) -> None:
         dest_x, dest_y = self.dest_xy
 
-        if not self.engine_.game_map.in_bounds(dest_x, dest_y):
+        if not self.engine.game_map.in_bounds(dest_x, dest_y):
             return  # Destination is out of bounds.
-        if not self.engine_.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return  # Destination is blocked by a tile.
-        if self.engine_.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             return  # Destination is blocked by an entity.
 
         self.entity.move(self.dx, self.dy)

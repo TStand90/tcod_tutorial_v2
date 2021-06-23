@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import engine.entity
+import game.entity
 
 
 class BaseComponent:
-    entity: engine.entity.Entity  # Owning entity instance.
+    entity: game.entity.Entity  # Owning entity instance.
 
     @property
-    def engine_(self) -> engine.engine.Engine:
+    def engine(self) -> game.engine.Engine:
         return self.entity.gamemap.engine

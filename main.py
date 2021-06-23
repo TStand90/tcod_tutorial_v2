@@ -3,12 +3,12 @@ import copy
 
 import tcod
 
-import engine.engine
-import engine.entity
-import engine.entity_factories
-import engine.game_map
-import engine.input_handlers
-import engine.procgen
+import game.engine
+import game.entity
+import game.entity_factories
+import game.game_map
+import game.input_handlers
+import game.procgen
 
 
 def main() -> None:
@@ -25,20 +25,20 @@ def main() -> None:
 
     tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    player = copy.deepcopy(engine.entity_factories.player)
+    player = copy.deepcopy(game.entity_factories.player)
 
-    engine_ = engine.engine.Engine(player=player)
+    engine = game.engine.Engine(player=player)
 
-    engine_.game_map = engine.procgen.generate_dungeon(
+    engine.game_map = game.procgen.generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
-        engine_=engine_,
+        engine=engine,
     )
-    engine_.update_fov()
+    engine.update_fov()
 
     with tcod.context.new(
         columns=screen_width,
@@ -49,9 +49,9 @@ def main() -> None:
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            engine_.render(console=root_console, context=context)
+            engine.render(console=root_console, context=context)
 
-            engine_.event_handler.handle_events()
+            engine.event_handler.handle_events()
 
 
 if __name__ == "__main__":

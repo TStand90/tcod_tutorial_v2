@@ -5,40 +5,40 @@ from typing import Iterable, Iterator, Optional
 import numpy as np
 import tcod
 
-import engine.engine
-import engine.entity
-import engine.tiles
+import game.engine
+import game.entity
+import game.tiles
 
 
 class GameMap:
     def __init__(
-        self, engine_: engine.engine.Engine, width: int, height: int, entities: Iterable[engine.entity.Entity] = ()
+        self, engine: game.engine.Engine, width: int, height: int, entities: Iterable[game.entity.Entity] = ()
     ):
-        self.engine = engine_
+        self.engine = engine
         self.width, self.height = width, height
         self.entities = set(entities)
-        self.tiles = np.full((width, height), fill_value=engine.tiles.wall, order="F")
+        self.tiles = np.full((width, height), fill_value=game.tiles.wall, order="F")
 
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
         self.explored = np.full((width, height), fill_value=False, order="F")  # Tiles the player has seen before
 
     @property
-    def actors(self) -> Iterator[engine.entity.Actor]:
+    def actors(self) -> Iterator[game.entity.Actor]:
         """Iterate over this maps living actors."""
-        yield from (entity for entity in self.entities if isinstance(entity, engine.entity.Actor) and entity.is_alive)
+        yield from (entity for entity in self.entities if isinstance(entity, game.entity.Actor) and entity.is_alive)
 
     def get_blocking_entity_at_location(
         self,
         location_x: int,
         location_y: int,
-    ) -> Optional[engine.entity.Entity]:
+    ) -> Optional[game.entity.Entity]:
         for entity in self.entities:
             if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
                 return entity
 
         return None
 
-    def get_actor_at_location(self, x: int, y: int) -> Optional[engine.entity.Actor]:
+    def get_actor_at_location(self, x: int, y: int) -> Optional[game.entity.Actor]:
         for actor in self.actors:
             if actor.x == x and actor.y == y:
                 return actor
@@ -60,7 +60,7 @@ class GameMap:
         console.rgb[0 : self.width, 0 : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=engine.tiles.SHROUD,
+            default=game.tiles.SHROUD,
         )
 
         entities_sorted_for_rendering = sorted(self.entities, key=lambda x: x.render_order.value)

@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import tcod
 
-import engine.entity
-import engine.game_map
-import engine.input_handlers
+import game.entity
+import game.game_map
+import game.input_handlers
 
 
 class Engine:
-    game_map: engine.game_map.GameMap
+    game_map: game.game_map.GameMap
 
-    def __init__(self, player: engine.entity.Actor):
-        self.event_handler: engine.input_handlers.EventHandler = engine.input_handlers.MainGameEventHandler(self)
+    def __init__(self, player: game.entity.Actor):
+        self.event_handler: game.input_handlers.EventHandler = game.input_handlers.MainGameEventHandler(self)
         self.player = player
 
     def handle_enemy_turns(self) -> None:
