@@ -1,4 +1,4 @@
-from engine.entity import Entity
+from game.entity import Entity
 
 player = Entity(char="@", color=(255, 255, 255), name="Player", blocks_movement=True)
 

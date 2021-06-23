@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple, TypeVar
+from typing import Tuple, TypeVar
 import copy
 
-if TYPE_CHECKING:
-    from game_map import GameMap
+import game.game_map
 
 T = TypeVar("T", bound="Entity")
 
@@ -30,7 +29,7 @@ class Entity:
         self.name = name
         self.blocks_movement = blocks_movement
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+    def spawn(self: T, gamemap: game.game_map.GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import engine.engine
-import engine.entity
+import game.engine
+import game.entity
 
 
 class Action:
-    def perform(self, engine: engine.engine.Engine, entity: engine.entity.Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         """Perform this action with the objects needed to determine its scope.
 
         `engine` is the scope this action is being performed in.
@@ -18,7 +18,7 @@ class Action:
 
 
 class Escape(Action):
-    def perform(self, engine: engine.engine.Engine, entity: engine.entity.Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         raise SystemExit()
 
 
@@ -29,12 +29,12 @@ class ActionWithDirection(Action):
         self.dx = dx
         self.dy = dy
 
-    def perform(self, engine: engine.engine.Engine, entity: engine.entity.Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         raise NotImplementedError()
 
 
 class MeleeAction(ActionWithDirection):
-    def perform(self, engine: engine.engine.Engine, entity: engine.entity.Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
         target = engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
@@ -45,7 +45,7 @@ class MeleeAction(ActionWithDirection):
 
 
 class Move(ActionWithDirection):
-    def perform(self, engine: engine.engine.Engine, entity: engine.entity.Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
 
@@ -60,7 +60,7 @@ class Move(ActionWithDirection):
 
 
 class Bump(ActionWithDirection):
-    def perform(self, engine: engine.engine.Engine, entity: engine.entity.Entity) -> None:
+    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
 
