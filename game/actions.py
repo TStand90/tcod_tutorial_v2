@@ -1,21 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import Optional, Tuple
 
-import color
-
-if TYPE_CHECKING:
-    from engine import Engine
-    from entity import Actor, Entity
+import game.color
+import game.engine
+import game.entity
 
 
 class Action:
-    def __init__(self, entity: Actor) -> None:
+    def __init__(self, entity: game.entity.Actor) -> None:
         super().__init__()
         self.entity = entity
 
     @property
-    def engine(self) -> Engine:
+    def engine(self) -> game.engine.Engine:
         """Return the engine this action belongs to."""
         return self.entity.gamemap.engine
 
@@ -31,7 +29,7 @@ class Action:
         raise NotImplementedError()
 
 
-class EscapeAction(Action):
+class Escape(Action):
     def perform(self) -> None:
         raise SystemExit()
 
@@ -42,7 +40,7 @@ class WaitAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Actor, dx: int, dy: int):
+    def __init__(self, entity: game.entity.Actor, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -54,12 +52,12 @@ class ActionWithDirection(Action):
         return self.entity.x + self.dx, self.entity.y + self.dy
 
     @property
-    def blocking_entity(self) -> Optional[Entity]:
+    def blocking_entity(self) -> Optional[game.entity.Entity]:
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
     @property
-    def target_actor(self) -> Optional[Actor]:
+    def target_actor(self) -> Optional[game.entity.Actor]:
         """Return the actor at this actions destination."""
         return self.engine.game_map.get_actor_at_location(*self.dest_xy)
 
@@ -77,9 +75,9 @@ class MeleeAction(ActionWithDirection):
 
         attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
         if self.entity is self.engine.player:
-            attack_color = color.player_atk
+            attack_color = game.color.player_atk
         else:
-            attack_color = color.enemy_atk
+            attack_color = game.color.enemy_atk
 
         if damage > 0:
             self.engine.message_log.add_message(f"{attack_desc} for {damage} hit points.", attack_color)
@@ -88,7 +86,7 @@ class MeleeAction(ActionWithDirection):
             self.engine.message_log.add_message(f"{attack_desc} but does no damage.", attack_color)
 
 
-class MovementAction(ActionWithDirection):
+class Move(ActionWithDirection):
     def perform(self) -> None:
         dest_x, dest_y = self.dest_xy
 
@@ -102,10 +100,10 @@ class MovementAction(ActionWithDirection):
         self.entity.move(self.dx, self.dy)
 
 
-class BumpAction(ActionWithDirection):
+class Bump(ActionWithDirection):
     def perform(self) -> None:
         if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         else:
-            return MovementAction(self.entity, self.dx, self.dy).perform()
+            return Move(self.entity, self.dx, self.dy).perform()

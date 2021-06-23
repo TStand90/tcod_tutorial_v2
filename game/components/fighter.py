@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from components.base_component import BaseComponent
-from input_handlers import GameOverEventHandler
-from render_order import RenderOrder
-import color
-
-if TYPE_CHECKING:
-    from entity import Actor
+from game.components.base_component import BaseComponent
+import game.color
+import game.entity
+import game.render_order
 
 
 class Fighter(BaseComponent):
-    entity: Actor
+    entity: game.entity.Actor
 
     def __init__(self, hp: int, defense: int, power: int):
         self.max_hp = hp
@@ -33,17 +28,17 @@ class Fighter(BaseComponent):
     def die(self) -> None:
         if self.engine.player is self.entity:
             death_message = "You died!"
-            death_message_color = color.player_die
-            self.engine.event_handler = GameOverEventHandler(self.engine)
+            death_message_color = game.color.player_die
+            self.engine.event_handler = game.input_handlers.GameOverEventHandler(self.engine)
         else:
             death_message = f"{self.entity.name} is dead!"
-            death_message_color = color.enemy_die
+            death_message_color = game.color.enemy_die
 
         self.entity.char = "%"
         self.entity.color = (191, 0, 0)
         self.entity.blocks_movement = False
         self.entity.ai = None
         self.entity.name = f"remains of {self.entity.name}"
-        self.entity.render_order = RenderOrder.CORPSE
+        self.entity.render_order = game.render_order.RenderOrder.CORPSE
 
         self.engine.message_log.add_message(death_message, death_message_color)

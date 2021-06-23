@@ -3,7 +3,7 @@ import textwrap
 
 import tcod
 
-import color
+import game.color
 
 
 class Message:
@@ -24,7 +24,7 @@ class MessageLog:
     def __init__(self) -> None:
         self.messages: List[Message] = []
 
-    def add_message(self, text: str, fg: Tuple[int, int, int] = color.white, *, stack: bool = True) -> None:
+    def add_message(self, text: str, fg: Tuple[int, int, int] = game.color.white, *, stack: bool = True) -> None:
         """Add a message to this log.
 
         `text` is the message text, `fg` is the text color.

@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 import tcod
 
-from actions import Action, BumpAction, EscapeAction, WaitAction
-
-if TYPE_CHECKING:
-    from engine import Engine
-
+import game.actions
+import game.engine
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -47,8 +44,8 @@ WAIT_KEYS = {
 }
 
 
-class EventHandler(tcod.event.EventDispatch[Action]):
-    def __init__(self, engine: Engine):
+class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
+    def __init__(self, engine: game.engine.Engine):
         self.engine = engine
 
     def handle_events(self, context: tcod.context.Context) -> None:
@@ -60,7 +57,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
         raise SystemExit()
 
     def on_render(self, console: tcod.Console) -> None:
@@ -83,8 +80,8 @@ class MainGameEventHandler(EventHandler):
 
             self.engine.update_fov()  # Update the FOV before the players next action.
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        action: Optional[Action] = None
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+        action: Optional[game.actions.Action] = None
 
         key = event.sym
 
@@ -92,12 +89,12 @@ class MainGameEventHandler(EventHandler):
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
-            action = BumpAction(player, dx, dy)
+            action = game.actions.Bump(player, dx, dy)
         elif key in WAIT_KEYS:
-            action = WaitAction(player)
+            action = game.actions.WaitAction(player)
 
         elif key == tcod.event.K_ESCAPE:
-            action = EscapeAction(player)
+            action = game.actions.Escape(player)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer(self.engine)
 
@@ -116,13 +113,13 @@ class GameOverEventHandler(EventHandler):
 
             action.perform()
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        action: Optional[Action] = None
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+        action: Optional[game.actions.Action] = None
 
         key = event.sym
 
         if key == tcod.event.K_ESCAPE:
-            action = EscapeAction(self.engine.player)
+            action = game.actions.Escape(self.engine.player)
 
         # No valid key was pressed
         return action
@@ -139,7 +136,7 @@ CURSOR_Y_KEYS = {
 class HistoryViewer(EventHandler):
     """Print the history on a larger window which can be navigated."""
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: game.engine.Engine):
         super().__init__(engine)
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
