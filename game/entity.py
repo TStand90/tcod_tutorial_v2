@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple, Type, TypeVar, Union
+from typing import Optional, Tuple, Type, TypeVar, Union
 import copy
 import math
 
-from render_order import RenderOrder
-
-if TYPE_CHECKING:
-    from components.ai import BaseAI
-    from components.consumable import Consumable
-    from components.fighter import Fighter
-    from components.inventory import Inventory
-    from game_map import GameMap
+import game.components.ai
+import game.components.consumable
+import game.components.fighter
+import game.components.inventory
+import game.game_map
+import game.render_order
 
 T = TypeVar("T", bound="Entity")
 
@@ -21,18 +19,18 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
-    parent: Union[GameMap, Inventory]
+    parent: Union[game.game_map.GameMap, game.components.inventory.Inventory]
 
     def __init__(
         self,
-        parent: Optional[GameMap] = None,
+        parent: Optional[game.game_map.GameMap] = None,
         x: int = 0,
         y: int = 0,
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
-        render_order: RenderOrder = RenderOrder.CORPSE,
+        render_order: game.render_order.RenderOrder = game.render_order.RenderOrder.CORPSE,
     ):
         self.x = x
         self.y = y
@@ -47,10 +45,10 @@ class Entity:
             parent.entities.add(self)
 
     @property
-    def gamemap(self) -> GameMap:
+    def gamemap(self) -> game.game_map.GameMap:
         return self.parent.gamemap
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+    def spawn(self: T, gamemap: game.game_map.GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x
@@ -59,7 +57,7 @@ class Entity:
         gamemap.entities.add(clone)
         return clone
 
-    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+    def place(self, x: int, y: int, gamemap: Optional[game.game_map.GameMap] = None) -> None:
         """Place this entitiy at a new location.  Handles moving across GameMaps."""
         self.x = x
         self.y = y
@@ -91,9 +89,9 @@ class Actor(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        ai_cls: Type[BaseAI],
-        fighter: Fighter,
-        inventory: Inventory,
+        ai_cls: Type[game.components.ai.BaseAI],
+        fighter: game.components.fighter.Fighter,
+        inventory: game.components.inventory.Inventory,
     ):
         super().__init__(
             x=x,
@@ -102,10 +100,10 @@ class Actor(Entity):
             color=color,
             name=name,
             blocks_movement=True,
-            render_order=RenderOrder.ACTOR,
+            render_order=game.render_order.RenderOrder.ACTOR,
         )
 
-        self.ai: Optional[BaseAI] = ai_cls(self)
+        self.ai: Optional[game.components.ai.BaseAI] = ai_cls(self)
 
         self.fighter = fighter
         self.fighter.parent = self
@@ -128,7 +126,7 @@ class Item(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        consumable: Consumable,
+        consumable: game.components.consumable.Consumable,
     ):
         super().__init__(
             x=x,
@@ -137,7 +135,7 @@ class Item(Entity):
             color=color,
             name=name,
             blocks_movement=False,
-            render_order=RenderOrder.ITEM,
+            render_order=game.render_order.RenderOrder.ITEM,
         )
 
         self.consumable = consumable
