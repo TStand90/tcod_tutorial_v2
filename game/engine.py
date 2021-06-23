@@ -2,18 +2,18 @@ from typing import Any, Iterable, Set
 
 import tcod
 
-import engine.entity
-import engine.game_map
-import engine.input_handlers
+import game.entity
+import game.game_map
+import game.input_handlers
 
 
 class Engine:
     def __init__(
         self,
-        entities: Set[engine.entity.Entity],
-        event_handler: engine.input_handlers.EventHandler,
-        game_map: engine.game_map.GameMap,
-        player: engine.entity.Entity,
+        entities: Set[game.entity.Entity],
+        event_handler: game.input_handlers.EventHandler,
+        game_map: game.game_map.GameMap,
+        player: game.entity.Entity,
     ):
         self.entities = entities
         self.event_handler = event_handler

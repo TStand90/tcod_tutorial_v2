@@ -5,9 +5,9 @@ import random
 
 import tcod
 
-import engine.entity
-import engine.game_map
-import engine.tiles
+import game.entity
+import game.game_map
+import game.tiles
 
 
 class RectangularRoom:
@@ -58,10 +58,10 @@ def generate_dungeon(
     room_max_size: int,
     map_width: int,
     map_height: int,
-    player: engine.entity.Entity,
-) -> engine.game_map.GameMap:
+    player: game.entity.Entity,
+) -> game.game_map.GameMap:
     """Generate a new dungeon map."""
-    dungeon = engine.game_map.GameMap(map_width, map_height)
+    dungeon = game.game_map.GameMap(map_width, map_height)
 
     rooms: List[RectangularRoom] = []
 
@@ -81,7 +81,7 @@ def generate_dungeon(
         # If there are no intersections then the room is valid.
 
         # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = engine.tiles.floor
+        dungeon.tiles[new_room.inner] = game.tiles.floor
 
         if len(rooms) == 0:
             # The first room, where the player starts.
@@ -89,7 +89,7 @@ def generate_dungeon(
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = engine.tiles.floor
+                dungeon.tiles[x, y] = game.tiles.floor
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
