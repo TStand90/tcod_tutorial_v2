@@ -4,10 +4,13 @@ import traceback
 
 import tcod
 
-from engine import Engine
-from procgen import generate_dungeon
-import color
-import entity_factories
+import game.color
+import game.engine
+import game.entity
+import game.entity_factories
+import game.game_map
+import game.input_handlers
+import game.procgen
 
 
 def main() -> None:
@@ -25,11 +28,11 @@ def main() -> None:
 
     tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    player = copy.deepcopy(entity_factories.player)
+    player = copy.deepcopy(game.entity_factories.player)
 
-    engine = Engine(player=player)
+    engine = game.engine.Engine(player=player)
 
-    engine.game_map = generate_dungeon(
+    engine.game_map = game.procgen.generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
@@ -41,7 +44,7 @@ def main() -> None:
     )
     engine.update_fov()
 
-    engine.message_log.add_message("Hello and welcome, adventurer, to yet another dungeon!", color.welcome_text)
+    engine.message_log.add_message("Hello and welcome, adventurer, to yet another dungeon!", game.color.welcome_text)
 
     with tcod.context.new(
         columns=screen_width,
@@ -63,7 +66,7 @@ def main() -> None:
             except Exception:  # Handle exceptions in game.
                 traceback.print_exc()  # Print error to stderr.
                 # Then print the error to the message log.
-                engine.message_log.add_message(traceback.format_exc(), color.error)
+                engine.message_log.add_message(traceback.format_exc(), game.color.error)
 
 
 if __name__ == "__main__":

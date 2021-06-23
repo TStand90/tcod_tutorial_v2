@@ -1,18 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple
 
 import tcod
 
-from actions import Action, BumpAction, PickupAction, WaitAction
-import actions
-import color
-import exceptions
-
-if TYPE_CHECKING:
-    from engine import Engine
-    from entity import Item
-
+import game.actions
+import game.color
+import game.engine
+import game.entity
+import game.exceptions
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -56,14 +52,14 @@ CONFIRM_KEYS = {
 }
 
 
-class EventHandler(tcod.event.EventDispatch[Action]):
-    def __init__(self, engine: Engine):
+class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
+    def __init__(self, engine: game.engine.Engine):
         self.engine = engine
 
     def handle_events(self, event: tcod.event.Event) -> None:
         self.handle_action(self.dispatch(event))
 
-    def handle_action(self, action: Optional[Action]) -> bool:
+    def handle_action(self, action: Optional[game.actions.Action]) -> bool:
         """Handle actions returned from event methods.
 
         Returns True if the action will advance a turn.
@@ -73,8 +69,8 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
         try:
             action.perform()
-        except exceptions.Impossible as exc:
-            self.engine.message_log.add_message(exc.args[0], color.impossible)
+        except game.exceptions.Impossible as exc:
+            self.engine.message_log.add_message(exc.args[0], game.color.impossible)
             return False  # Skip enemy turn on exceptions.
 
         self.engine.handle_enemy_turns()
@@ -86,7 +82,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
         raise SystemExit()
 
     def on_render(self, console: tcod.Console) -> None:
@@ -96,14 +92,14 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 class AskUserEventHandler(EventHandler):
     """Handles user input for actions which require special input."""
 
-    def handle_action(self, action: Optional[Action]) -> bool:
+    def handle_action(self, action: Optional[game.actions.Action]) -> bool:
         """Return to the main event handler when a valid action was performed."""
         if super().handle_action(action):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return True
         return False
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
         """By default any key exits this input handler."""
         if event.sym in {  # Ignore modifier keys.
             tcod.event.K_LSHIFT,
@@ -119,11 +115,11 @@ class AskUserEventHandler(EventHandler):
             return None
         return self.on_exit()
 
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[game.actions.Action]:
         """By default any mouse click exits this input handler."""
         return self.on_exit()
 
-    def on_exit(self) -> Optional[Action]:
+    def on_exit(self) -> Optional[game.actions.Action]:
         """Called when the user is trying to exit or cancel an action.
 
         By default this returns to the main event handler.
@@ -180,7 +176,7 @@ class InventoryEventHandler(AskUserEventHandler):
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
         player = self.engine.player
         key = event.sym
         index = key - tcod.event.K_a
@@ -189,12 +185,12 @@ class InventoryEventHandler(AskUserEventHandler):
             try:
                 selected_item = player.inventory.items[index]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", color.invalid)
+                self.engine.message_log.add_message("Invalid entry.", game.color.invalid)
                 return None
             return self.on_item_selected(selected_item)
         return super().ev_keydown(event)
 
-    def on_item_selected(self, item: Item) -> Optional[Action]:
+    def on_item_selected(self, item: game.entity.Item) -> Optional[game.actions.Action]:
         """Called when the user selects a valid item."""
         raise NotImplementedError()
 
@@ -204,7 +200,7 @@ class InventoryActivateHandler(InventoryEventHandler):
 
     TITLE = "Select an item to use"
 
-    def on_item_selected(self, item: Item) -> Optional[Action]:
+    def on_item_selected(self, item: game.entity.Item) -> Optional[game.actions.Action]:
         """Return the action for the selected item."""
         return item.consumable.get_action(self.engine.player)
 
@@ -214,15 +210,15 @@ class InventoryDropHandler(InventoryEventHandler):
 
     TITLE = "Select an item to drop"
 
-    def on_item_selected(self, item: Item) -> Optional[Action]:
+    def on_item_selected(self, item: game.entity.Item) -> Optional[game.actions.Action]:
         """Drop this item."""
-        return actions.DropItem(self.engine.player, item)
+        return game.actions.DropItem(self.engine.player, item)
 
 
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: game.engine.Engine):
         """Sets the cursor to the player when this handler is constructed."""
         super().__init__(engine)
         player = self.engine.player
@@ -232,10 +228,10 @@ class SelectIndexHandler(AskUserEventHandler):
         """Highlight the tile under the cursor."""
         super().on_render(console)
         x, y = self.engine.mouse_location
-        console.tiles_rgb["bg"][x, y] = color.white
-        console.tiles_rgb["fg"][x, y] = color.black
+        console.tiles_rgb["bg"][x, y] = game.color.white
+        console.tiles_rgb["fg"][x, y] = game.color.black
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
         """Check for key movement or confirmation keys."""
         key = event.sym
         if key in MOVE_KEYS:
@@ -260,14 +256,14 @@ class SelectIndexHandler(AskUserEventHandler):
             return self.on_index_selected(*self.engine.mouse_location)
         return super().ev_keydown(event)
 
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[game.actions.Action]:
         """Left click confirms a selection."""
         if self.engine.game_map.in_bounds(*event.tile):
             if event.button == 1:
                 return self.on_index_selected(*event.tile)
         return super().ev_mousebuttondown(event)
 
-    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+    def on_index_selected(self, x: int, y: int) -> Optional[game.actions.Action]:
         """Called when an index is selected."""
         raise NotImplementedError()
 
@@ -283,12 +279,14 @@ class LookHandler(SelectIndexHandler):
 class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
 
-    def __init__(self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]):
+    def __init__(
+        self, engine: game.engine.Engine, callback: Callable[[Tuple[int, int]], Optional[game.actions.Action]]
+    ):
         super().__init__(engine)
 
         self.callback = callback
 
-    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+    def on_index_selected(self, x: int, y: int) -> Optional[game.actions.Action]:
         return self.callback((x, y))
 
 
@@ -297,9 +295,9 @@ class AreaRangedAttackHandler(SelectIndexHandler):
 
     def __init__(
         self,
-        engine: Engine,
+        engine: game.engine.Engine,
         radius: int,
-        callback: Callable[[Tuple[int, int]], Optional[Action]],
+        callback: Callable[[Tuple[int, int]], Optional[game.actions.Action]],
     ):
         super().__init__(engine)
 
@@ -318,17 +316,17 @@ class AreaRangedAttackHandler(SelectIndexHandler):
             y=y - self.radius - 1,
             width=self.radius ** 2,
             height=self.radius ** 2,
-            fg=color.red,
+            fg=game.color.red,
             clear=False,
         )
 
-    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+    def on_index_selected(self, x: int, y: int) -> Optional[game.actions.Action]:
         return self.callback((x, y))
 
 
 class MainGameEventHandler(EventHandler):
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        action: Optional[Action] = None
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+        action: Optional[game.actions.Action] = None
 
         key = event.sym
 
@@ -336,9 +334,9 @@ class MainGameEventHandler(EventHandler):
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
-            action = BumpAction(player, dx, dy)
+            action = game.actions.Bump(player, dx, dy)
         elif key in WAIT_KEYS:
-            action = WaitAction(player)
+            action = game.actions.WaitAction(player)
 
         elif key == tcod.event.K_ESCAPE:
             raise SystemExit()
@@ -346,7 +344,7 @@ class MainGameEventHandler(EventHandler):
             self.engine.event_handler = HistoryViewer(self.engine)
 
         elif key == tcod.event.K_g:
-            action = PickupAction(player)
+            action = game.actions.PickupAction(player)
 
         elif key == tcod.event.K_i:
             self.engine.event_handler = InventoryActivateHandler(self.engine)
@@ -376,7 +374,7 @@ CURSOR_Y_KEYS = {
 class HistoryViewer(EventHandler):
     """Print the history on a larger window which can be navigated."""
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: game.engine.Engine):
         super().__init__(engine)
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
