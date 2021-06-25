@@ -34,7 +34,7 @@ class Escape(Action):
         raise SystemExit()
 
 
-class WaitAction(Action):
+class Wait(Action):
     def perform(self) -> None:
         pass
 
@@ -65,7 +65,7 @@ class ActionWithDirection(Action):
         raise NotImplementedError()
 
 
-class MeleeAction(ActionWithDirection):
+class Melee(ActionWithDirection):
     def perform(self) -> None:
         target = self.target_actor
         if not target:
@@ -103,7 +103,6 @@ class Move(ActionWithDirection):
 class Bump(ActionWithDirection):
     def perform(self) -> None:
         if self.target_actor:
-            return MeleeAction(self.entity, self.dx, self.dy).perform()
-
+            return Melee(self.entity, self.dx, self.dy).perform()
         else:
             return Move(self.entity, self.dx, self.dy).perform()
