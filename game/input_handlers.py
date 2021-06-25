@@ -112,7 +112,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_ESCAPE:
             return game.actions.Escape(player)
 
-        return None  # No valid key was pressed.
+        return None
 
 
 class GameOverEventHandler(EventHandler):
