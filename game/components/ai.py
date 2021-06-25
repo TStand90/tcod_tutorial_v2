@@ -72,4 +72,4 @@ class HostileEnemy(BaseAI):
                 dest_y - self.entity.y,
             ).perform()
 
-        return game.actions.WaitAction(self.entity).perform()
+        return game.actions.Wait(self.entity).perform()

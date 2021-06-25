@@ -33,7 +33,7 @@ class Escape(Action):
         raise SystemExit()
 
 
-class WaitAction(Action):
+class Wait(Action):
     def perform(self) -> None:
         pass
 

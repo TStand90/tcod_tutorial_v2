@@ -107,7 +107,7 @@ class MainGameEventHandler(EventHandler):
             dx, dy = MOVE_KEYS[key]
             return game.actions.Bump(player, dx=dx, dy=dy)
         elif key in WAIT_KEYS:
-            return game.actions.WaitAction(player)
+            return game.actions.Wait(player)
 
         elif key == tcod.event.K_ESCAPE:
             return game.actions.Escape(player)
