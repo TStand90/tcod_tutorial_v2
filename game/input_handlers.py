@@ -48,4 +48,4 @@ class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
         elif key == tcod.event.K_ESCAPE:
             return game.actions.Escape()
 
-        return None  # No valid key was pressed.
+        return None
