@@ -60,7 +60,7 @@ class HostileEnemy(BaseAI):
 
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance <= 1:
-                return game.actions.MeleeAction(self.entity, dx, dy).perform()
+                return game.actions.Melee(self.entity, dx, dy).perform()
 
             self.path = self.get_path_to(target.x, target.y)
 
