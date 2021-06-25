@@ -294,7 +294,7 @@ class MainGameEventHandler(EventHandler):
             self.engine.event_handler = HistoryViewer(self.engine)
 
         elif key == tcod.event.K_g:
-            return game.actions.PickupAction(player)
+            return game.actions.Pickup(player)
 
         elif key == tcod.event.K_i:
             self.engine.event_handler = InventoryActivateHandler(self.engine)

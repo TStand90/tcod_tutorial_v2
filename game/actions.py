@@ -30,7 +30,7 @@ class Action:
         raise NotImplementedError()
 
 
-class PickupAction(Action):
+class Pickup(Action):
     """Pickup an item and add it to the inventory, if there is room for it."""
 
     def __init__(self, entity: game.entity.Actor):
