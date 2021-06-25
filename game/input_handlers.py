@@ -4,27 +4,48 @@ import tcod.event
 
 import game.actions
 
+MOVE_KEYS = {
+    # Arrow keys.
+    tcod.event.K_UP: (0, -1),
+    tcod.event.K_DOWN: (0, 1),
+    tcod.event.K_LEFT: (-1, 0),
+    tcod.event.K_RIGHT: (1, 0),
+    tcod.event.K_HOME: (-1, -1),
+    tcod.event.K_END: (-1, 1),
+    tcod.event.K_PAGEUP: (1, -1),
+    tcod.event.K_PAGEDOWN: (1, 1),
+    # Numpad keys.
+    tcod.event.K_KP_1: (-1, 1),
+    tcod.event.K_KP_2: (0, 1),
+    tcod.event.K_KP_3: (1, 1),
+    tcod.event.K_KP_4: (-1, 0),
+    tcod.event.K_KP_6: (1, 0),
+    tcod.event.K_KP_7: (-1, -1),
+    tcod.event.K_KP_8: (0, -1),
+    tcod.event.K_KP_9: (1, -1),
+    # Vi keys.
+    tcod.event.K_h: (-1, 0),
+    tcod.event.K_j: (0, 1),
+    tcod.event.K_k: (0, -1),
+    tcod.event.K_l: (1, 0),
+    tcod.event.K_y: (-1, -1),
+    tcod.event.K_u: (1, -1),
+    tcod.event.K_b: (-1, 1),
+    tcod.event.K_n: (1, 1),
+}
+
 
 class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
     def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
         raise SystemExit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
-        action: Optional[game.actions.Action] = None
-
         key = event.sym
 
-        if key == tcod.event.K_UP:
-            action = game.actions.Move(dx=0, dy=-1)
-        elif key == tcod.event.K_DOWN:
-            action = game.actions.Move(dx=0, dy=1)
-        elif key == tcod.event.K_LEFT:
-            action = game.actions.Move(dx=-1, dy=0)
-        elif key == tcod.event.K_RIGHT:
-            action = game.actions.Move(dx=1, dy=0)
-
+        if key in MOVE_KEYS:
+            dx, dy = MOVE_KEYS[key]
+            return game.actions.Move(dx=dx, dy=dy)
         elif key == tcod.event.K_ESCAPE:
-            action = game.actions.Escape()
+            return game.actions.Escape()
 
-        # No valid key was pressed
-        return action
+        return None  # No valid key was pressed.
