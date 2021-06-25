@@ -126,7 +126,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer(self.engine)
 
-        return None  # No valid key was pressed.
+        return None
 
 
 class GameOverEventHandler(EventHandler):
