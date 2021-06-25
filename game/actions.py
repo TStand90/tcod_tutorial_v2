@@ -33,7 +33,7 @@ class ActionWithDirection(Action):
         raise NotImplementedError()
 
 
-class MeleeAction(ActionWithDirection):
+class Melee(ActionWithDirection):
     def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
@@ -65,7 +65,6 @@ class Bump(ActionWithDirection):
         dest_y = entity.y + self.dy
 
         if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            return MeleeAction(self.dx, self.dy).perform(engine, entity)
-
+            return Melee(self.dx, self.dy).perform(engine, entity)
         else:
             return Move(self.dx, self.dy).perform(engine, entity)
