@@ -34,12 +34,11 @@ def main() -> None:
             for event in tcod.event.wait():
                 action = event_handler.dispatch(event)
 
-                if action is None:
-                    continue
-
                 if isinstance(action, game.actions.Move):
-                    player_x += action.dx
-                    player_y += action.dy
+                    new_x = player_x + action.dx
+                    new_y = player_y + action.dy
+                    if 0 <= new_x < screen_width and 0 <= new_y < screen_height:
+                        player_x, player_y = new_x, new_y
 
 
 if __name__ == "__main__":
