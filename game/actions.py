@@ -38,4 +38,4 @@ class Move(Action):
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return  # Destination is blocked by a tile.
 
-        self.entity.move(self.dx, self.dy)
+        self.entity.x, self.entity.y = dest_x, dest_y
