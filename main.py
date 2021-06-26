@@ -41,9 +41,6 @@ def main() -> None:
                     player_x += action.dx
                     player_y += action.dy
 
-                elif isinstance(action, game.actions.Escape):
-                    raise SystemExit()
-
 
 if __name__ == "__main__":
     main()
