@@ -22,11 +22,6 @@ class Action:
         raise NotImplementedError()
 
 
-class Escape(Action):
-    def perform(self) -> None:
-        raise SystemExit()
-
-
 class Move(Action):
     def __init__(self, entity: game.entity.Entity, dx: int, dy: int):
         super().__init__(entity)
