@@ -1,6 +1,6 @@
 from typing import Optional
 
-import tcod.event
+import tcod
 
 import game.actions
 
