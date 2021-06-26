@@ -5,7 +5,12 @@ import game.entity
 
 
 class Action:
-    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
+    def __init__(self, entity: game.entity.Entity) -> None:
+        super().__init__()
+        self.entity = entity
+        self.engine = entity.gamemap.engine
+
+    def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
 
         `engine` is the scope this action is being performed in.
@@ -18,24 +23,24 @@ class Action:
 
 
 class Escape(Action):
-    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
+    def perform(self) -> None:
         raise SystemExit()
 
 
 class Move(Action):
-    def __init__(self, dx: int, dy: int):
-        super().__init__()
+    def __init__(self, entity: game.entity.Entity, dx: int, dy: int):
+        super().__init__(entity)
 
         self.dx = dx
         self.dy = dy
 
-    def perform(self, engine: game.engine.Engine, entity: game.entity.Entity) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
+    def perform(self) -> None:
+        dest_x = self.entity.x + self.dx
+        dest_y = self.entity.y + self.dy
 
-        if not engine.game_map.in_bounds(dest_x, dest_y):
+        if not self.engine.game_map.in_bounds(dest_x, dest_y):
             return  # Destination is out of bounds.
-        if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return  # Destination is blocked by a tile.
 
-        entity.move(self.dx, self.dy)
+        self.entity.move(self.dx, self.dy)
