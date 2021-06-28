@@ -37,7 +37,7 @@ MOVE_KEYS = {
 
 class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
     def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
-        raise SystemExit()
+        raise SystemExit(0)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
         key = event.sym
