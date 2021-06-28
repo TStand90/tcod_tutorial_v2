@@ -46,6 +46,6 @@ class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
             dx, dy = MOVE_KEYS[key]
             return game.actions.Move(dx=dx, dy=dy)
         elif key == tcod.event.K_ESCAPE:
-            raise SystemExit()
+            raise SystemExit(0)
 
         return None
