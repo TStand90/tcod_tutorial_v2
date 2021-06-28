@@ -32,6 +32,11 @@ jobs:
         with:
           linters: mypy
           run: mypy --show-column-numbers .
+      - name: Flake8
+        uses: liskin/gh-problem-matcher-wrap@v1
+        with:
+          linters: flake8
+          run: flake8 .
       - name: isort
         uses: liskin/gh-problem-matcher-wrap@v1
         with:
