@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from tcod.console import Console
 import numpy as np
+from tcod.console import Console
 
 import game.engine
 import game.tiles

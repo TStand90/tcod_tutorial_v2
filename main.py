@@ -15,7 +15,7 @@ def main() -> None:
     map_width = 80
     map_height = 45
 
-    tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
+    tileset = tcod.tileset.load_tilesheet("data/dejavu16x16_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     engine = game.engine.Engine()
     engine.game_map = game.game_map.GameMap(engine, map_width, map_height)
