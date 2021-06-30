@@ -92,7 +92,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
-        raise SystemExit()
+        raise SystemExit(0)
 
     def on_render(self, console: tcod.Console) -> None:
         self.engine.render(console)
@@ -260,6 +260,7 @@ class SelectIndexHandler(AskUserEventHandler):
             return None
         elif key in CONFIRM_KEYS:
             return self.on_index_selected(*self.engine.mouse_location)
+        self.engine.clear_aoe()
         return super().ev_keydown(event)
 
     def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
@@ -314,17 +315,11 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         """Highlight the tile under the cursor."""
         super().on_render(console)
 
-        x, y = self.engine.mouse_location
+        # Compute the aoe for the cursor location.
+        self.engine.update_aoe(location=self.engine.mouse_location, radius=self.radius)
 
-        # Draw a rectangle around the targeted area, so the player can see the affected tiles.
-        console.draw_frame(
-            x=x - self.radius - 1,
-            y=y - self.radius - 1,
-            width=self.radius ** 2,
-            height=self.radius ** 2,
-            fg=color.red,
-            clear=False,
-        )
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        return super().ev_keydown(event)
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         return self.callback((x, y))
@@ -345,7 +340,7 @@ class MainGameEventHandler(EventHandler):
             action = WaitAction(player)
 
         elif key == tcod.event.K_ESCAPE:
-            raise SystemExit()
+            raise SystemExit(0)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer(self.engine)
 
@@ -366,7 +361,7 @@ class MainGameEventHandler(EventHandler):
 class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.K_ESCAPE:
-            raise SystemExit()
+            raise SystemExit(0)
 
 
 CURSOR_Y_KEYS = {

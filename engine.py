@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import numpy as np 
 from tcod.console import Console
 from tcod.map import compute_fov
+import tcod
 
 import exceptions
 from input_handlers import MainGameEventHandler
@@ -45,6 +47,34 @@ class Engine:
         )
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
+
+    def update_aoe(
+        self, location: Tuple[int, int], radius: int, include_walls: bool = False,
+    ) -> None:
+        """Compute the blast area for an aoe action."""
+
+        # Start with the fov from the center of the blast.
+        self.game_map.aoe[:] = compute_fov(
+            self.game_map.tiles["transparent"],
+            location,
+            radius=radius,
+            light_walls=include_walls,
+            algorithm=tcod.FOV_BASIC,
+        )
+
+        # Now limit the preview to visible tiles.
+        it = np.nditer(
+            [self.game_map.aoe, self.game_map.visible, None], flags=['buffered']
+        )
+
+        with it:
+            for has_aoe, is_visible, tmp in it:
+                tmp[...] = has_aoe and is_visible
+            self.game_map.aoe = it.operands[2]
+
+    def clear_aoe(self):
+        # Clear out the aoe preview table.
+        self.game_map.aoe.fill(False)
 
     def render(self, console: Console) -> None:
         self.game_map.render(console)

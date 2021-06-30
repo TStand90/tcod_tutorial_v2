@@ -28,6 +28,9 @@ class GameMap:
         self.explored = np.full(
             (width, height), fill_value=False, order="F"
         )  # Tiles the player has seen before
+        self.aoe = np.full(
+            (width, height), fill_value=False, order="F"
+        )  # Tiles in the aoe for an action
 
     @property
     def gamemap(self) -> GameMap:
@@ -79,8 +82,10 @@ class GameMap:
         Otherwise, the default is "SHROUD".
         """
         console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
-            condlist=[self.visible, self.explored],
-            choicelist=[self.tiles["light"], self.tiles["dark"]],
+            #condlist=[self.visible, self.explored],
+            condlist=[self.aoe, self.visible, self.explored],
+            #choicelist=[self.tiles["light"], self.tiles["dark"]],
+            choicelist=[self.tiles["aoe"], self.tiles["light"], self.tiles["dark"]],
             default=tile_types.SHROUD,
         )
 
