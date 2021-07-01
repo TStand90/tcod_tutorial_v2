@@ -16,9 +16,7 @@ class GameMap:
         self.engine = engine
         self.width, self.height = width, height
         self.entities = set(entities)
-        self.tiles = np.full((width, height), fill_value=game.tiles.floor, order="F")
-
-        self.tiles[30:33, 22] = game.tiles.wall
+        self.tiles = np.full((width, height), fill_value=game.tiles.wall, order="F")
 
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""

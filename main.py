@@ -6,6 +6,7 @@ import game.engine
 import game.entity
 import game.game_map
 import game.input_handlers
+import game.tiles
 
 
 def main() -> None:
@@ -19,6 +20,8 @@ def main() -> None:
 
     engine = game.engine.Engine()
     engine.game_map = game.game_map.GameMap(engine, map_width, map_height)
+    engine.game_map.tiles[1:-1, 1:-1] = game.tiles.floor
+    engine.game_map.tiles[30:33, 22] = game.tiles.wall
     engine.player = game.entity.Entity(engine.game_map, screen_width // 2, screen_height // 2, "@", (255, 255, 255))
 
     game.entity.Entity(engine.game_map, screen_width // 2 - 5, screen_height // 2, "@", (255, 255, 0))  # NPC
