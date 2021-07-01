@@ -2,7 +2,6 @@
 import tcod
 
 import game.engine
-import game.entity
 import game.game_map
 import game.input_handlers
 import game.procgen
