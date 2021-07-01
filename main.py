@@ -22,7 +22,6 @@ def main() -> None:
     tileset = tcod.tileset.load_tilesheet("data/dejavu16x16_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     engine = game.engine.Engine()
-    engine.player = game.entity.Entity(engine.game_map, screen_width // 2, screen_height // 2, "@", (255, 255, 255))
     engine.game_map = game.procgen.generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,

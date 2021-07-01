@@ -86,7 +86,7 @@ def generate_dungeon(
 
         if len(rooms) == 0:
             # The first room, where the player starts.
-            engine.player.x, engine.player.y = new_room.center
+            engine.player = game.entity.Entity(dungeon, *new_room.center, "@", (255, 255, 255))
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
