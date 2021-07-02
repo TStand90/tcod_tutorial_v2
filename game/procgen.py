@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Iterator, List, Tuple
 import random
+from typing import Iterator, List, Tuple
 
 import tcod
 
+import game.engine
 import game.entity
 import game.game_map
 import game.tiles
@@ -58,10 +59,10 @@ def generate_dungeon(
     room_max_size: int,
     map_width: int,
     map_height: int,
-    player: game.entity.Entity,
+    engine: game.engine.Engine,
 ) -> game.game_map.GameMap:
     """Generate a new dungeon map."""
-    dungeon = game.game_map.GameMap(map_width, map_height)
+    dungeon = game.game_map.GameMap(engine, map_width, map_height)
 
     rooms: List[RectangularRoom] = []
 
@@ -85,7 +86,7 @@ def generate_dungeon(
 
         if len(rooms) == 0:
             # The first room, where the player starts.
-            player.x, player.y = new_room.center
+            engine.player = game.entity.Entity(dungeon, *new_room.center, "@", (255, 255, 255))
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):

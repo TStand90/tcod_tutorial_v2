@@ -27,8 +27,6 @@ jobs:
             platform-name: macos.x64
           - os: ubuntu-20.04
             platform-name: linux.x64
-    env:
-      archive-name: roguelike-tutorial-${{ matrix.platform-name }}
     steps:
       - name: Checkout code
         # fetch-depth=0 and v1 are needed for 'git describe' to work correctly.

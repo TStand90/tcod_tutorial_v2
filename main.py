@@ -2,7 +2,6 @@
 import tcod
 
 import game.engine
-import game.entity
 import game.game_map
 import game.input_handlers
 import game.procgen
@@ -19,24 +18,20 @@ def main() -> None:
     room_min_size = 6
     max_rooms = 30
 
-    tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
+    tileset = tcod.tileset.load_tilesheet("data/dejavu16x16_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    event_handler = game.input_handlers.EventHandler()
-
-    player = game.entity.Entity(int(screen_width / 2), int(screen_height / 2), "@", (255, 255, 255))
-    npc = game.entity.Entity(int(screen_width / 2 - 5), int(screen_height / 2), "@", (255, 255, 0))
-    entities = {npc, player}
-
-    game_map = game.procgen.generate_dungeon(
+    engine = game.engine.Engine()
+    engine.game_map = game.procgen.generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
-        player=player,
+        engine=engine,
     )
+    engine.update_fov()
 
-    engine = game.engine.Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
+    event_handler = game.input_handlers.EventHandler(engine)
 
     with tcod.context.new(
         columns=screen_width,
@@ -47,11 +42,12 @@ def main() -> None:
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            engine.render(console=root_console, context=context)
+            root_console.clear()
+            event_handler.on_render(console=root_console)
+            context.present(root_console)
 
-            events = tcod.event.wait()
-
-            engine.handle_events(events)
+            for event in tcod.event.wait():
+                event_handler = event_handler.handle_events(event)
 
 
 if __name__ == "__main__":
