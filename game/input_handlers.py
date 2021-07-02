@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Tuple
 
+import numpy as np
 import tcod
 
 import game.actions
@@ -83,7 +84,7 @@ class EventHandler(tcod.event.EventDispatch[game.actions.Action]):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
-        raise SystemExit()
+        raise SystemExit(0)
 
     def on_render(self, console: tcod.Console) -> None:
         self.engine.render(console)
@@ -308,17 +309,24 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         """Highlight the tile under the cursor."""
         super().on_render(console)
 
+        aoe_tiles = np.full((self.engine.game_map.width, self.engine.game_map.height), fill_value=False, order="F")
+
         x, y = self.engine.mouse_location
 
-        # Draw a rectangle around the targeted area, so the player can see the affected tiles.
-        console.draw_frame(
-            x=x - self.radius - 1,
-            y=y - self.radius - 1,
-            width=self.radius ** 2,
-            height=self.radius ** 2,
-            fg=game.color.red,
-            clear=False,
-        )
+        # Calculate and draw the aoe if the target is visible.
+        if self.engine.game_map.visible[x, y]:
+            aoe_tiles[:] = tcod.map.compute_fov(
+                self.engine.game_map.tiles["transparent"],
+                self.engine.mouse_location,
+                radius=self.radius,
+                light_walls=False,
+                algorithm=tcod.FOV_BASIC,
+            )
+
+            aoe_tiles &= self.engine.game_map.visible
+
+            aoe_tiles[x, y] = False
+            console.tiles_rgb["bg"][aoe_tiles] = game.color.red
 
     def on_index_selected(self, x: int, y: int) -> Optional[game.actions.Action]:
         return self.callback((x, y))
@@ -339,7 +347,7 @@ class MainGameEventHandler(EventHandler):
             action = game.actions.WaitAction(player)
 
         elif key == tcod.event.K_ESCAPE:
-            raise SystemExit()
+            raise SystemExit(0)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer(self.engine)
 
