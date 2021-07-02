@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from typing import Tuple
 
-import game.engine
 import game.game_map
 
 

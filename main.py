@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import tcod
 
-import game.actions
 import game.engine
 import game.entity
 import game.game_map
