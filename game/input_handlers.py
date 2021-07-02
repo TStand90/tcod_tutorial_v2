@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Tuple
 
-import tcod
 import numpy as np
+import tcod
 
 import game.actions
 import game.color
