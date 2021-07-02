@@ -5,6 +5,7 @@ from typing import Optional, Union
 import tcod
 
 import game.actions
+import game.engine
 
 MOVE_KEYS = {
     # Arrow keys.
