@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Tuple, TypeVar
 import copy
+from typing import Tuple, TypeVar
 
 import game.game_map
 
@@ -15,13 +15,16 @@ class Entity:
 
     def __init__(
         self,
-        x: int = 0,
-        y: int = 0,
-        char: str = "?",
-        color: Tuple[int, int, int] = (255, 255, 255),
-        name: str = "<Unnamed>",
-        blocks_movement: bool = False,
+        gamemap: game.game_map.GameMap,
+        x: int,
+        y: int,
+        char: str,
+        color: Tuple[int, int, int],
+        name: str,
+        blocks_movement: bool,
     ):
+        self.gamemap = gamemap
+        gamemap.entities.add(self)
         self.x = x
         self.y = y
         self.char = char
@@ -36,8 +39,3 @@ class Entity:
         clone.y = y
         gamemap.entities.add(clone)
         return clone
-
-    def move(self, dx: int, dy: int) -> None:
-        # Move the entity by a given amount
-        self.x += dx
-        self.y += dy

@@ -5,15 +5,20 @@ from typing import Iterable, Optional
 import numpy as np
 import tcod
 
+import game.engine
 import game.entity
 import game.tiles
 
 
 class GameMap:
-    def __init__(self, width: int, height: int, entities: Iterable[game.entity.Entity] = ()):
+    def __init__(
+        self, engine: game.engine.Engine, width: int, height: int, entities: Iterable[game.entity.Entity] = ()
+    ):
+        self.engine = engine
         self.width, self.height = width, height
         self.entities = set(entities)
         self.tiles = np.full((width, height), fill_value=game.tiles.wall, order="F")
+        self.entities = set(entities)
 
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
         self.explored = np.full((width, height), fill_value=False, order="F")  # Tiles the player has seen before
@@ -44,5 +49,5 @@ class GameMap:
         )
 
         for entity in self.entities:
-            if self.visible[entity.x, entity.y]:
+            if self.visible[entity.x, entity.y]:  # Only print entities that are in the FOV.
                 console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)

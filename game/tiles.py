@@ -1,7 +1,7 @@
 from typing import Any, Tuple
 
-from numpy.typing import NDArray
 import numpy as np
+from numpy.typing import NDArray
 
 # Tile graphics structured type compatible with Console.tiles_rgb.
 graphic_dt = np.dtype(

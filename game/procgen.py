@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Iterator, List, Tuple
 import random
+from typing import Iterator, List, Tuple
 
 import tcod
 
+import game.engine
 import game.entity
-import game.entity_factories
 import game.game_map
 import game.tiles
 
@@ -44,9 +44,9 @@ def place_entities(room: RectangularRoom, dungeon: game.game_map.GameMap, maximu
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             if random.random() < 0.8:
-                game.entity_factories.orc.spawn(dungeon, x, y)
+                game.entity.Entity(dungeon, x, y, char="o", color=(63, 127, 63), name="Orc", blocks_movement=True)
             else:
-                game.entity_factories.troll.spawn(dungeon, x, y)
+                game.entity.Entity(dungeon, x, y, char="T", color=(0, 127, 0), name="Troll", blocks_movement=True)
 
 
 def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
@@ -74,10 +74,10 @@ def generate_dungeon(
     map_width: int,
     map_height: int,
     max_monsters_per_room: int,
-    player: game.entity.Entity,
+    engine: game.engine.Engine,
 ) -> game.game_map.GameMap:
     """Generate a new dungeon map."""
-    dungeon = game.game_map.GameMap(map_width, map_height, entities=[player])
+    dungeon = game.game_map.GameMap(engine, map_width, map_height)
 
     rooms: List[RectangularRoom] = []
 
@@ -101,7 +101,7 @@ def generate_dungeon(
 
         if len(rooms) == 0:
             # The first room, where the player starts.
-            player.x, player.y = new_room.center
+            engine.player = game.entity.Entity(dungeon, *new_room.center, "@", (255, 255, 255), "Player", True)
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
