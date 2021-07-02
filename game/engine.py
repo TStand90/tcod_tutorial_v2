@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import tcod
 
 import game.entity
 import game.game_map
-import game.input_handlers
 
 
 class Engine:
