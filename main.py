@@ -27,11 +27,9 @@ def main() -> None:
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            root_console.print(x=player_x, y=player_y, string="@")
-
-            context.present(root_console)
-
             root_console.clear()
+            root_console.print(x=player_x, y=player_y, string="@")
+            context.present(root_console)
 
             for event in tcod.event.wait():
                 if isinstance(event, tcod.event.Quit):
