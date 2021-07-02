@@ -325,9 +325,8 @@ class AreaRangedAttackHandler(SelectIndexHandler):
 
             aoe_tiles &= self.engine.game_map.visible
 
-            for pos, is_aoe in np.ndenumerate(aoe_tiles):
-                if is_aoe and not (pos[0] == x and pos[1] == y):
-                    console.tiles_rgb["bg"][pos[0], pos[1]] = game.color.red 
+            aoe_tiles[x, y] = False
+            console.tiles_rgb["bg"][aoe_tiles] = game.color.red 
 
     def on_index_selected(self, x: int, y: int) -> Optional[game.actions.Action]:
         return self.callback((x, y))
