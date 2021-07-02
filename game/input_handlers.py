@@ -326,7 +326,7 @@ class AreaRangedAttackHandler(SelectIndexHandler):
             aoe_tiles &= self.engine.game_map.visible
 
             aoe_tiles[x, y] = False
-            console.tiles_rgb["bg"][aoe_tiles] = game.color.red 
+            console.tiles_rgb["bg"][aoe_tiles] = game.color.red
 
     def on_index_selected(self, x: int, y: int) -> Optional[game.actions.Action]:
         return self.callback((x, y))
