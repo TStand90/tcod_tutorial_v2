@@ -30,7 +30,7 @@ class Move(Action):
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             return  # Destination is out of bounds.
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles[dest_x, dest_y]:
             return  # Destination is blocked by a tile.
 
         self.entity.x, self.entity.y = dest_x, dest_y
