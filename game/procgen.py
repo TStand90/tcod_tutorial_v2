@@ -8,7 +8,9 @@ import tcod
 import game.engine
 import game.entity
 import game.game_map
-import game.tiles
+
+wall = 0
+floor = 1
 
 
 class RectangularRoom:
@@ -82,7 +84,7 @@ def generate_dungeon(
         # If there are no intersections then the room is valid.
 
         # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = game.tiles.floor
+        dungeon.tiles[new_room.inner] = floor
 
         if len(rooms) == 0:
             # The first room, where the player starts.
@@ -90,7 +92,7 @@ def generate_dungeon(
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = game.tiles.floor
+                dungeon.tiles[x, y] = floor
 
         # Finally, append the new room to the list.
         rooms.append(new_room)

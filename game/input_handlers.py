@@ -6,6 +6,7 @@ import tcod
 
 import game.actions
 import game.engine
+import game.rendering
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -80,4 +81,4 @@ class EventHandler(tcod.event.EventDispatch[ActionOrHandler]):
         return None
 
     def on_render(self, console: tcod.Console) -> None:
-        self.engine.render(console)
+        game.rendering.render_map(console, self.engine.game_map)
