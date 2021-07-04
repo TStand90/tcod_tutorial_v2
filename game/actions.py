@@ -6,15 +6,11 @@ import game.entity
 class Action:
     def __init__(self, entity: game.entity.Entity) -> None:
         super().__init__()
-        self.entity = entity
+        self.entity = entity  # The object performing the action.
         self.engine = entity.gamemap.engine
 
     def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
-
-        `engine` is the scope this action is being performed in.
-
-        `entity` is the object performing the action.
 
         This method must be overridden by Action subclasses.
         """
