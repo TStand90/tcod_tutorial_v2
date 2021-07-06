@@ -10,7 +10,7 @@ class Action:
         self.engine = entity.gamemap.engine
 
     def perform(self) -> None:
-        """Perform this action with the objects needed to determine its scope.
+        """Perform this action now.
 
         This method must be overridden by Action subclasses.
         """
