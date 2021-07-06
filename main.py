@@ -2,6 +2,7 @@
 import tcod
 
 import game.engine
+import game.entity
 import game.game_map
 import game.input_handlers
 import game.procgen
@@ -29,6 +30,7 @@ def main() -> None:
         map_height=map_height,
         engine=engine,
     )
+    engine.player = game.entity.Entity(engine.game_map, *engine.game_map.enter_xy, "@", (255, 255, 255))
 
     event_handler = game.input_handlers.EventHandler(engine)
 
