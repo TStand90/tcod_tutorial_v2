@@ -53,7 +53,7 @@ class EventHandler(tcod.event.EventDispatch[ActionOrHandler]):
         self.engine = engine
 
     def handle_events(self, event: tcod.event.Event) -> EventHandler:
-        """Handle an event, perfrom any actions, then return the next active event handler."""
+        """Handle an event, perform any actions, then return the next active event handler."""
         action_or_state = self.dispatch(event)
         if isinstance(action_or_state, EventHandler):
             return action_or_state
