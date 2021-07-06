@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import random
 from typing import Iterator, List, Tuple
 
 import tcod
@@ -37,11 +36,13 @@ class RectangularRoom:
         return self.x1 <= other.x2 and self.x2 >= other.x1 and self.y1 <= other.y2 and self.y2 >= other.y1
 
 
-def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+def tunnel_between(
+    engine: game.engine.Engine, start: Tuple[int, int], end: Tuple[int, int]
+) -> Iterator[Tuple[int, int]]:
     """Return an L-shaped tunnel between these two points."""
     x1, y1 = start
     x2, y2 = end
-    if random.random() < 0.5:  # 50% chance.
+    if engine.rng.random() < 0.5:  # 50% chance.
         # Move horizontally, then vertically.
         corner_x, corner_y = x2, y1
     else:
@@ -69,11 +70,11 @@ def generate_dungeon(
     rooms: List[RectangularRoom] = []
 
     for _ in range(max_rooms):
-        room_width = random.randint(room_min_size, room_max_size)
-        room_height = random.randint(room_min_size, room_max_size)
+        room_width = engine.rng.randint(room_min_size, room_max_size)
+        room_height = engine.rng.randint(room_min_size, room_max_size)
 
-        x = random.randint(0, dungeon.width - room_width - 1)
-        y = random.randint(0, dungeon.height - room_height - 1)
+        x = engine.rng.randint(0, dungeon.width - room_width - 1)
+        y = engine.rng.randint(0, dungeon.height - room_height - 1)
 
         # "RectangularRoom" class makes rectangles easier to work with
         new_room = RectangularRoom(x, y, room_width, room_height)
@@ -91,7 +92,7 @@ def generate_dungeon(
             dungeon.enter_xy = new_room.center
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
-            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+            for x, y in tunnel_between(engine, rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = floor
 
         # Finally, append the new room to the list.

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import random
+
 import tcod
 
 import game.engine
@@ -22,6 +24,7 @@ def main() -> None:
     tileset = tcod.tileset.load_tilesheet("data/dejavu16x16_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     engine = game.engine.Engine()
+    engine.rng = random.Random()
     engine.game_map = game.procgen.generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
