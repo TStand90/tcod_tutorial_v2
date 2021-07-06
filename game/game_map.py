@@ -12,7 +12,7 @@ class GameMap:
     def __init__(self, engine: game.engine.Engine, width: int, height: int):
         self.engine = engine
         self.width, self.height = width, height
-        self.tiles = np.zeros((width, height), dtype=bool, order="F")
+        self.tiles = np.zeros((width, height), dtype=np.uint8, order="F")
         self.entities: Set[game.entity.Entity] = set()
 
     def in_bounds(self, x: int, y: int) -> bool:
