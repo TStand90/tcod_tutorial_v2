@@ -1,13 +1,12 @@
+from __future__ import annotations
+
 from typing import Tuple
 
-import game.engine
 import game.game_map
 
 
 class Entity:
-    """
-    A generic object to represent players, enemies, items, etc.
-    """
+    """A generic object to represent players, enemies, items, etc."""
 
     def __init__(
         self,

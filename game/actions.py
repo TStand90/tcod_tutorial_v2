@@ -1,21 +1,16 @@
 from __future__ import annotations
 
-import game.engine
 import game.entity
 
 
 class Action:
     def __init__(self, entity: game.entity.Entity) -> None:
         super().__init__()
-        self.entity = entity
+        self.entity = entity  # The object performing the action.
         self.engine = entity.gamemap.engine
 
     def perform(self) -> None:
-        """Perform this action with the objects needed to determine its scope.
-
-        `engine` is the scope this action is being performed in.
-
-        `entity` is the object performing the action.
+        """Perform this action now.
 
         This method must be overridden by Action subclasses.
         """
@@ -35,7 +30,7 @@ class Move(Action):
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             return  # Destination is out of bounds.
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles[dest_x, dest_y]:
             return  # Destination is blocked by a tile.
 
         self.entity.x, self.entity.y = dest_x, dest_y
