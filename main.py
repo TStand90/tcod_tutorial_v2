@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import logging
 import random
 
 import tcod
@@ -59,4 +60,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if __debug__:
+        logging.basicConfig(level=logging.DEBUG)
     main()

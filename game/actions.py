@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import logging
+
 import game.entity
+
+logger = logging.getLogger(__name__)
 
 
 class Action:
@@ -36,7 +40,7 @@ class Melee(ActionWithDirection):
         if not target:
             return  # No entity to attack.
 
-        print(f"You kick the {target.name}, much to its annoyance!")
+        logger.info(f"You kick the {target.name}, much to its annoyance!")
 
 
 class Move(ActionWithDirection):
