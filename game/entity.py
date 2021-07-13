@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import Tuple, TypeVar
+from typing import Tuple
 
 import game.game_map
-
-T = TypeVar("T", bound="Entity")
 
 
 class Entity:
