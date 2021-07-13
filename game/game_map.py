@@ -19,9 +19,10 @@ class GameMap:
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
         self.explored = np.full((width, height), fill_value=False, order="F")  # Tiles the player has seen before
 
-    def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[game.entity.Entity]:
+    def get_blocking_entity_at(self, x: int, y: int) -> Optional[game.entity.Entity]:
+        """Returns an entity that blocks the position at x,y if one exists, otherwise returns None."""
         for entity in self.entities:
-            if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
+            if entity.blocks_movement and entity.x == x and entity.y == y:
                 return entity
 
         return None

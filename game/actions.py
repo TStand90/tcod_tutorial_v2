@@ -36,7 +36,7 @@ class Melee(ActionWithDirection):
     def perform(self) -> None:
         dest_x = self.entity.x + self.dx
         dest_y = self.entity.y + self.dy
-        target = self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
+        target = self.engine.game_map.get_blocking_entity_at(dest_x, dest_y)
         if not target:
             return  # No entity to attack.
 
@@ -52,7 +52,7 @@ class Move(ActionWithDirection):
             return  # Destination is out of bounds.
         if not self.engine.game_map.tiles[dest_x, dest_y]:
             return  # Destination is blocked by a tile.
-        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+        if self.engine.game_map.get_blocking_entity_at(dest_x, dest_y):
             return  # Destination is blocked by an entity.
 
         self.entity.x, self.entity.y = dest_x, dest_y
@@ -63,7 +63,7 @@ class Bump(ActionWithDirection):
         dest_x = self.entity.x + self.dx
         dest_y = self.entity.y + self.dy
 
-        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+        if self.engine.game_map.get_blocking_entity_at(dest_x, dest_y):
             return Melee(self.entity, self.dx, self.dy).perform()
         else:
             return Move(self.entity, self.dx, self.dy).perform()
