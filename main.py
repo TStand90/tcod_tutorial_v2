@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import random
+
 import tcod
 
 import game.engine
+import game.entity
 import game.input_handlers
 import game.procgen
 
@@ -21,6 +24,7 @@ def main() -> None:
     tileset = tcod.tileset.load_tilesheet("data/dejavu16x16_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     engine = game.engine.Engine()
+    engine.rng = random.Random()
     engine.game_map = game.procgen.generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
@@ -29,6 +33,9 @@ def main() -> None:
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
         engine=engine,
+    )
+    engine.player = game.entity.Entity(
+        engine.game_map, *engine.game_map.enter_xy, char="@", color=(255, 255, 255), name="Player"
     )
     engine.update_fov()
 

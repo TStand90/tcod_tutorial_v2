@@ -6,18 +6,44 @@ name: Lint
 on: [push, pull_request]
 
 jobs:
-  lint:
+  black:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.x"] # Latest Python 3.
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.x
+      - name: Install black
+        run: |
+          python -m pip install black
+      - name: Black
+        run: |
+          black --check .
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install isort
+        run: |
+          python -m pip install isort
+      - name: isort
+        uses: liskin/gh-problem-matcher-wrap@v1
+        with:
+          linters: isort
+          run: isort --check .
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
       - name: Install APT dependencies
         if: runner.os == 'Linux'
         run: |
@@ -25,23 +51,15 @@ jobs:
           sudo apt-get install libsdl2-dev
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install flake8 mypy black isort -r requirements.txt
-      - name: MyPy
+          python -m pip install flake8 mypy -r requirements.txt
+      - name: Mypy
         uses: liskin/gh-problem-matcher-wrap@v1
         with:
           linters: mypy
           run: mypy --show-column-numbers .
       - name: Flake8
+        if: always() # Run even if Mypy fails.
         uses: liskin/gh-problem-matcher-wrap@v1
         with:
           linters: flake8
           run: flake8 .
-      - name: isort
-        uses: liskin/gh-problem-matcher-wrap@v1
-        with:
-          linters: isort
-          run: isort --check .
-      - name: Black
-        run: |
-          black --check .
