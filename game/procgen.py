@@ -42,11 +42,15 @@ def place_entities(room: RectangularRoom, dungeon: game.game_map.GameMap, maximu
         x = rng.randint(room.x1 + 1, room.x2 - 1)
         y = rng.randint(room.y1 + 1, room.y2 - 1)
 
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            if rng.random() < 0.8:
-                game.entity.Entity(dungeon, x, y, char="o", color=(63, 127, 63), name="Orc")
-            else:
-                game.entity.Entity(dungeon, x, y, char="T", color=(0, 127, 0), name="Troll")
+        if dungeon.get_blocking_entity_at(x, y):
+            continue
+        if (x, y) == dungeon.enter_xy:
+            continue
+
+        if rng.random() < 0.8:
+            game.entity.Entity(dungeon, x, y, char="o", color=(63, 127, 63), name="Orc")
+        else:
+            game.entity.Entity(dungeon, x, y, char="T", color=(0, 127, 0), name="Troll")
 
 
 def tunnel_between(
