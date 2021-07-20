@@ -7,7 +7,6 @@ line-length = 120
 py_version = "38"
 line_length = 120
 profile = "black"
-from_first = true
 skip_gitignore = true
 
 [tool.mypy] # https://mypy.readthedocs.io/en/stable/config_file.html

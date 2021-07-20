@@ -5,10 +5,10 @@ from typing import List, Tuple
 import numpy as np
 import tcod
 
-from game.actions import Action
-from game.components.base_component import BaseComponent
 import game.actions
 import game.entity
+from game.actions import Action
+from game.components.base_component import BaseComponent
 
 
 class BaseAI(Action, BaseComponent):
@@ -23,7 +23,7 @@ class BaseAI(Action, BaseComponent):
         If there is no valid path then returns an empty list.
         """
         # Copy the walkable array.
-        cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
+        cost = np.array(self.entity.gamemap.tiles, dtype=np.int8)
 
         for entity in self.entity.gamemap.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
