@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from game.components.base_component import BaseComponent
 import game.color
 import game.entity
 import game.render_order
+from game.components.base_component import BaseComponent
 
 
 class Fighter(BaseComponent):
@@ -26,10 +26,9 @@ class Fighter(BaseComponent):
             self.die()
 
     def die(self) -> None:
-        if self.engine.player is self.entity:
+        if self.entity.gamemap.engine.player is self.entity:
             death_message = "You died!"
             death_message_color = game.color.player_die
-            self.engine.event_handler = game.input_handlers.GameOverEventHandler(self.engine)
         else:
             death_message = f"{self.entity.name} is dead!"
             death_message_color = game.color.enemy_die
@@ -41,4 +40,4 @@ class Fighter(BaseComponent):
         self.entity.name = f"remains of {self.entity.name}"
         self.entity.render_order = game.render_order.RenderOrder.CORPSE
 
-        self.engine.message_log.add_message(death_message, death_message_color)
+        self.entity.gamemap.engine.message_log.add_message(death_message, death_message_color)

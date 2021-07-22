@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from typing import Iterator, List, Tuple
-import random
 
 import tcod
 
+import game.engine
 import game.entity
-import game.entity_factories
 import game.game_map
-import game.tiles
+from game.components.ai import HostileEnemy
+from game.components.fighter import Fighter
+
+WALL = 0
+FLOOR = 1
 
 
 class RectangularRoom:
@@ -20,10 +23,8 @@ class RectangularRoom:
 
     @property
     def center(self) -> Tuple[int, int]:
-        center_x = int((self.x1 + self.x2) / 2)
-        center_y = int((self.y1 + self.y2) / 2)
-
-        return center_x, center_y
+        """Return the center coordinates of the room."""
+        return (self.x1 + self.x2) // 2, (self.y1 + self.y2) // 2
 
     @property
     def inner(self) -> Tuple[slice, slice]:
@@ -36,29 +37,52 @@ class RectangularRoom:
 
 
 def place_entities(room: RectangularRoom, dungeon: game.game_map.GameMap, maximum_monsters: int) -> None:
-    number_of_monsters = random.randint(0, maximum_monsters)
+    rng = dungeon.engine.rng
+    number_of_monsters = rng.randint(0, maximum_monsters)
 
     for _ in range(number_of_monsters):
-        x = random.randint(room.x1 + 1, room.x2 - 1)
-        y = random.randint(room.y1 + 1, room.y2 - 1)
+        x = rng.randint(room.x1 + 1, room.x2 - 1)
+        y = rng.randint(room.y1 + 1, room.y2 - 1)
 
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            if random.random() < 0.8:
-                game.entity_factories.orc.spawn(dungeon, x, y)
-            else:
-                game.entity_factories.troll.spawn(dungeon, x, y)
+        if dungeon.get_blocking_entity_at(x, y):
+            continue
+        if (x, y) == dungeon.enter_xy:
+            continue
+
+        if rng.random() < 0.8:
+            game.entity.Actor(
+                dungeon,
+                x,
+                y,
+                char="o",
+                color=(63, 127, 63),
+                name="Orc",
+                ai_cls=HostileEnemy,
+                fighter=Fighter(hp=10, defense=0, power=3),
+            )
+        else:
+            game.entity.Actor(
+                dungeon,
+                x,
+                y,
+                char="T",
+                color=(0, 127, 0),
+                name="Troll",
+                ai_cls=HostileEnemy,
+                fighter=Fighter(hp=16, defense=1, power=4),
+            )
 
 
-def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+def tunnel_between(
+    engine: game.engine.Engine, start: Tuple[int, int], end: Tuple[int, int]
+) -> Iterator[Tuple[int, int]]:
     """Return an L-shaped tunnel between these two points."""
     x1, y1 = start
     x2, y2 = end
-    if random.random() < 0.5:  # 50% chance.
-        # Move horizontally, then vertically.
-        corner_x, corner_y = x2, y1
+    if engine.rng.random() < 0.5:  # 50% chance.
+        corner_x, corner_y = x2, y1  # Move horizontally, then vertically.
     else:
-        # Move vertically, then horizontally.
-        corner_x, corner_y = x1, y2
+        corner_x, corner_y = x1, y2  # Move vertically, then horizontally.
 
     # Generate the coordinates for this tunnel.
     for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
@@ -77,19 +101,18 @@ def generate_dungeon(
     engine: game.engine.Engine,
 ) -> game.game_map.GameMap:
     """Generate a new dungeon map."""
-    player = engine.player
-    dungeon = game.game_map.GameMap(engine, map_width, map_height, entities=[player])
+    dungeon = game.game_map.GameMap(engine, map_width, map_height)
 
     rooms: List[RectangularRoom] = []
 
     for _ in range(max_rooms):
-        room_width = random.randint(room_min_size, room_max_size)
-        room_height = random.randint(room_min_size, room_max_size)
+        room_width = engine.rng.randint(room_min_size, room_max_size)
+        room_height = engine.rng.randint(room_min_size, room_max_size)
 
-        x = random.randint(0, dungeon.width - room_width - 1)
-        y = random.randint(0, dungeon.height - room_height - 1)
+        x = engine.rng.randint(0, dungeon.width - room_width - 1)
+        y = engine.rng.randint(0, dungeon.height - room_height - 1)
 
-        # "RectangularRoom" class makes rectangles easier to work with
+        # "RectangularRoom" class makes rectangles easier to work with.
         new_room = RectangularRoom(x, y, room_width, room_height)
 
         # Run through the other rooms and see if they intersect with this one.
@@ -98,15 +121,15 @@ def generate_dungeon(
         # If there are no intersections then the room is valid.
 
         # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = game.tiles.floor
+        dungeon.tiles[new_room.inner] = FLOOR
 
         if len(rooms) == 0:
             # The first room, where the player starts.
-            player.place(*new_room.center, dungeon)
+            dungeon.enter_xy = new_room.center
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
-            for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = game.tiles.floor
+            for x, y in tunnel_between(engine, rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = FLOOR
 
         place_entities(new_room, dungeon, max_monsters_per_room)
 
