@@ -71,7 +71,7 @@ class EventHandler(tcod.event.EventDispatch[ActionOrHandler]):
     def handle_action(self, action: game.actions.Action) -> EventHandler:
         return self
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[ActionOrHandler]:
         raise SystemExit(0)
 
     def on_render(self, console: tcod.Console) -> None:
@@ -168,5 +168,6 @@ class HistoryViewer(EventHandler):
             self.cursor = 0  # Move directly to the top message.
         elif event.sym == tcod.event.K_END:
             self.cursor = self.log_length - 1  # Move directly to the last message.
-        else:  # Any other key moves back to the main game state.
-            return MainGameEventHandler(self.engine)
+
+        # Any other key moves back to the main game state.
+        return MainGameEventHandler(self.engine)
