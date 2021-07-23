@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Optional
 
-from game.components.base_component import BaseComponent
 import game.actions
 import game.color
 import game.components.inventory
@@ -10,7 +9,7 @@ import game.entity
 import game.exceptions
 
 
-class Consumable(BaseComponent):
+class Consumable:
     parent: game.entity.Item
 
     def get_action(self, consumer: game.entity.Actor) -> Optional[game.actions.Action]:
@@ -41,7 +40,7 @@ class HealingConsumable(Consumable):
         amount_recovered = consumer.fighter.heal(self.amount)
 
         if amount_recovered > 0:
-            self.engine.message_log.add_message(
+            self.parent.gamemap.engine.message_log.add_message(
                 f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
                 game.color.health_recovered,
             )

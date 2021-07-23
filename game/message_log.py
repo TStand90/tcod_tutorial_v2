@@ -1,5 +1,5 @@
-from typing import Iterable, List, Reversible, Tuple
 import textwrap
+from typing import Iterable, List, Reversible, Tuple
 
 import tcod
 
