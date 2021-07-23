@@ -68,10 +68,10 @@ class EventHandler(tcod.event.EventDispatch[ActionOrHandler]):
         self.engine.update_fov()
         return self
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[ActionOrHandler]:
         raise SystemExit(0)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
 
         if key in MOVE_KEYS:
