@@ -68,15 +68,15 @@ class EventHandler(tcod.event.EventDispatch[ActionOrHandler]):
             return self.handle_action(action_or_state)
         return self
 
-    def on_render(self, console: tcod.Console) -> None:
-        game.rendering.render_map(console, self.engine.game_map)
-        game.rendering.render_ui(console, self.engine)
-
     def handle_action(self, action: game.actions.Action) -> EventHandler:
         return self
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
         raise SystemExit(0)
+
+    def on_render(self, console: tcod.Console) -> None:
+        game.rendering.render_map(console, self.engine.game_map)
+        game.rendering.render_ui(console, self.engine)
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
@@ -93,7 +93,7 @@ class MainGameEventHandler(EventHandler):
             return GameOverEventHandler(self.engine)
         return self
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
 
         if key in MOVE_KEYS:
@@ -109,7 +109,7 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         if event.sym == tcod.event.K_ESCAPE:
             raise SystemExit(0)
         return None
@@ -151,7 +151,7 @@ class HistoryViewer(EventHandler):
         )
         log_console.blit(console, 3, 3)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         # Fancy conditional movement to make it feel right.
         if event.sym in CURSOR_Y_KEYS:
             adjust = CURSOR_Y_KEYS[event.sym]
