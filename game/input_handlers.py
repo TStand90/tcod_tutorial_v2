@@ -71,7 +71,7 @@ class EventHandler(tcod.event.EventDispatch[ActionOrHandler]):
     def handle_action(self, action: game.actions.Action) -> EventHandler:
         return self
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[ActionOrHandler]:
         raise SystemExit(0)
 
     def on_render(self, console: tcod.Console) -> None:
@@ -89,7 +89,10 @@ class MainGameEventHandler(EventHandler):
             return GameOverEventHandler(self.engine)
         return self
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[ActionOrHandler]:
+        raise SystemExit(0)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
 
         if key in MOVE_KEYS:
@@ -103,7 +106,7 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[game.actions.Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         if event.sym == tcod.event.K_ESCAPE:
             raise SystemExit(0)
         return None
