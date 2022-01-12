@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import copy
+import logging
+import random
 import traceback
 
 import tcod
@@ -7,10 +8,11 @@ import tcod
 import game.color
 import game.engine
 import game.entity
-import game.entity_factories
-import game.game_map
 import game.input_handlers
 import game.procgen
+from game.components.ai import HostileEnemy
+from game.components.fighter import Fighter
+from game.components.inventory import Inventory
 
 
 def main() -> None:
@@ -26,12 +28,10 @@ def main() -> None:
     max_monsters_per_room = 2
     max_items_per_room = 2
 
-    tileset = tcod.tileset.load_tilesheet("data/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
+    tileset = tcod.tileset.load_tilesheet("data/dejavu16x16_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    player = copy.deepcopy(game.entity_factories.player)
-
-    engine = game.engine.Engine(player=player)
-
+    engine = game.engine.Engine()
+    engine.rng = random.Random()
     engine.game_map = game.procgen.generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
@@ -42,7 +42,19 @@ def main() -> None:
         max_items_per_room=max_items_per_room,
         engine=engine,
     )
+    engine.player = game.entity.Actor(
+        engine.game_map,
+        *engine.game_map.enter_xy,
+        char="@",
+        color=(255, 255, 255),
+        name="Player",
+        ai_cls=HostileEnemy,
+        fighter=Fighter(hp=30, defense=2, power=5),
+        inventory=Inventory(capacity=26),
+    )
     engine.update_fov()
+
+    event_handler: game.input_handlers.EventHandler = game.input_handlers.MainGameEventHandler(engine)
 
     engine.message_log.add_message("Hello and welcome, adventurer, to yet another dungeon!", game.color.welcome_text)
 
@@ -56,13 +68,13 @@ def main() -> None:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
             root_console.clear()
-            engine.event_handler.on_render(console=root_console)
+            event_handler.on_render(console=root_console)
             context.present(root_console)
 
             try:
                 for event in tcod.event.wait():
                     context.convert_event(event)
-                    engine.event_handler.handle_events(event)
+                    event_handler = event_handler.handle_events(event)
             except Exception:  # Handle exceptions in game.
                 traceback.print_exc()  # Print error to stderr.
                 # Then print the error to the message log.
@@ -70,4 +82,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if __debug__:
+        logging.basicConfig(level=logging.DEBUG)
     main()

@@ -6,7 +6,11 @@ import game.game_map
 
 
 class BaseComponent:
-    parent: game.entity.Entity  # Owning entity instance.
+    entity: game.entity.Actor  # Owning entity instance.
+
+    @property
+    def parent(self) -> game.entity.Actor:
+        return self.entity
 
     @property
     def gamemap(self) -> game.game_map.GameMap:
