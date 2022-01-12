@@ -76,15 +76,15 @@ class EventHandler(tcod.event.EventDispatch[ActionOrHandler]):
             return self.handle_action(action_or_state)
         return self
 
-    def on_render(self, console: tcod.Console) -> None:
-        game.rendering.render_map(console, self.engine.game_map)
-        game.rendering.render_ui(console, self.engine)
-
     def handle_action(self, action: game.actions.Action) -> EventHandler:
         return self
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[game.actions.Action]:
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[ActionOrHandler]:
         raise SystemExit(0)
+
+    def on_render(self, console: tcod.Console) -> None:
+        game.rendering.render_map(console, self.engine.game_map)
+        game.rendering.render_ui(console, self.engine)
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
@@ -373,4 +373,3 @@ class LookHandler(SelectIndexHandler):
 
     def on_index_selected(self, x: int, y: int) -> Optional[ActionOrHandler]:
         """Return to main handler."""
-        return MainGameEventHandler(self.engine)
