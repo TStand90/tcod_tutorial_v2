@@ -177,10 +177,10 @@ def generate_dungeon(
 
         place_entities(new_room, dungeon, engine.game_world.current_floor)
 
-        dungeon.tiles[center_of_last_room] = game.tiles.down_stairs
-        dungeon.downstairs_location = center_of_last_room
-
         # Finally, append the new room to the list.
         rooms.append(new_room)
+
+    dungeon.tiles[center_of_last_room] = game.tiles.down_stairs
+    dungeon.downstairs_location = center_of_last_room
 
     return dungeon
