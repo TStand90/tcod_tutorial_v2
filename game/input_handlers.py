@@ -371,7 +371,7 @@ class InventoryActivateHandler(InventoryEventHandler):
             # Return the action for the selected item.
             return item.consumable.get_action(self.engine.player)
         elif item.equippable:
-            return game.actions.EquipAction(self.engine.player, item)
+            return game.actions.EquipItem(self.engine.player, item)
         else:
             return None
 
@@ -505,13 +505,13 @@ class MainGameEventHandler(EventHandler):
         player = self.engine.player
 
         if key == tcod.event.K_PERIOD and modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
-            return game.actions.TakeStairsAction(player)
+            return game.actions.TakeStairs(player)
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
             action = game.actions.Bump(player, dx, dy)
         elif key in WAIT_KEYS:
-            action = game.actions.WaitAction(player)
+            action = game.actions.Wait(player)
 
         elif key == tcod.event.K_ESCAPE:
             raise SystemExit()
@@ -519,7 +519,7 @@ class MainGameEventHandler(EventHandler):
             return HistoryViewer(self.engine)
 
         elif key == tcod.event.K_g:
-            action = game.actions.PickupAction(player)
+            action = game.actions.Pickup(player)
 
         elif key == tcod.event.K_i:
             return InventoryActivateHandler(self.engine)
