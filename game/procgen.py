@@ -9,7 +9,10 @@ import game.engine
 import game.entity
 import game.entity_factories
 import game.game_map
-import game.tiles
+
+WALL = 0
+FLOOR = 1
+DOWN_STAIRS = 2
 
 max_items_by_floor = [
     (1, 1),
@@ -50,6 +53,7 @@ def get_max_value_for_floor(max_value_by_floor: List[Tuple[int, int]], floor: in
 
 
 def get_entities_at_random(
+    rng: random.Random,
     weighted_chances_by_floor: Dict[int, List[Tuple[game.entity.Entity, int]]],
     number_of_entities: int,
     floor: int,
@@ -69,7 +73,7 @@ def get_entities_at_random(
     entities = list(entity_weighted_chances.keys())
     entity_weighted_chance_values = list(entity_weighted_chances.values())
 
-    chosen_entities = random.choices(entities, weights=entity_weighted_chance_values, k=number_of_entities)
+    chosen_entities = rng.choices(entities, weights=entity_weighted_chance_values, k=number_of_entities)
 
     return chosen_entities
 
@@ -83,10 +87,8 @@ class RectangularRoom:
 
     @property
     def center(self) -> Tuple[int, int]:
-        center_x = int((self.x1 + self.x2) / 2)
-        center_y = int((self.y1 + self.y2) / 2)
-
-        return center_x, center_y
+        """Return the center coordinates of the room."""
+        return (self.x1 + self.x2) // 2, (self.y1 + self.y2) // 2
 
     @property
     def inner(self) -> Tuple[slice, slice]:
@@ -99,30 +101,31 @@ class RectangularRoom:
 
 
 def place_entities(room: RectangularRoom, dungeon: game.game_map.GameMap, floor_number: int) -> None:
-    number_of_monsters = random.randint(0, get_max_value_for_floor(max_monsters_by_floor, floor_number))
-    number_of_items = random.randint(0, get_max_value_for_floor(max_items_by_floor, floor_number))
+    rng = dungeon.engine.rng
+    number_of_monsters = rng.randint(0, get_max_value_for_floor(max_monsters_by_floor, floor_number))
+    number_of_items = rng.randint(0, get_max_value_for_floor(max_items_by_floor, floor_number))
 
-    monsters: List[game.entity.Entity] = get_entities_at_random(enemy_chances, number_of_monsters, floor_number)
-    items: List[game.entity.Entity] = get_entities_at_random(item_chances, number_of_items, floor_number)
+    monsters: List[game.entity.Entity] = get_entities_at_random(rng, enemy_chances, number_of_monsters, floor_number)
+    items: List[game.entity.Entity] = get_entities_at_random(rng, item_chances, number_of_items, floor_number)
 
     for entity in monsters + items:
-        x = random.randint(room.x1 + 1, room.x2 - 1)
-        y = random.randint(room.y1 + 1, room.y2 - 1)
+        x = rng.randint(room.x1 + 1, room.x2 - 1)
+        y = rng.randint(room.y1 + 1, room.y2 - 1)
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             entity.spawn(dungeon, x, y)
 
 
-def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+def tunnel_between(
+    engine: game.engine.Engine, start: Tuple[int, int], end: Tuple[int, int]
+) -> Iterator[Tuple[int, int]]:
     """Return an L-shaped tunnel between these two points."""
     x1, y1 = start
     x2, y2 = end
-    if random.random() < 0.5:  # 50% chance.
-        # Move horizontally, then vertically.
-        corner_x, corner_y = x2, y1
+    if engine.rng.random() < 0.5:  # 50% chance.
+        corner_x, corner_y = x2, y1  # Move horizontally, then vertically.
     else:
-        # Move vertically, then horizontally.
-        corner_x, corner_y = x1, y2
+        corner_x, corner_y = x1, y2  # Move vertically, then horizontally.
 
     # Generate the coordinates for this tunnel.
     for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
@@ -148,11 +151,11 @@ def generate_dungeon(
     center_of_last_room = (0, 0)
 
     for _ in range(max_rooms):
-        room_width = random.randint(room_min_size, room_max_size)
-        room_height = random.randint(room_min_size, room_max_size)
+        room_width = engine.rng.randint(room_min_size, room_max_size)
+        room_height = engine.rng.randint(room_min_size, room_max_size)
 
-        x = random.randint(0, dungeon.width - room_width - 1)
-        y = random.randint(0, dungeon.height - room_height - 1)
+        x = engine.rng.randint(0, dungeon.width - room_width - 1)
+        y = engine.rng.randint(0, dungeon.height - room_height - 1)
 
         # "RectangularRoom" class makes rectangles easier to work with
         new_room = RectangularRoom(x, y, room_width, room_height)
@@ -163,21 +166,21 @@ def generate_dungeon(
         # If there are no intersections then the room is valid.
 
         # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = game.tiles.floor
+        dungeon.tiles[new_room.inner] = FLOOR
 
         if len(rooms) == 0:
             # The first room, where the player starts.
             player.place(*new_room.center, dungeon)
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
-            for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = game.tiles.floor
+            for x, y in tunnel_between(engine, rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = FLOOR
 
             center_of_last_room = new_room.center
 
         place_entities(new_room, dungeon, engine.game_world.current_floor)
 
-        dungeon.tiles[center_of_last_room] = game.tiles.down_stairs
+        dungeon.tiles[center_of_last_room] = DOWN_STAIRS
         dungeon.downstairs_location = center_of_last_room
 
         # Finally, append the new room to the list.

@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import Optional, Tuple
 
 import game.color
+import game.engine
+import game.entity
 import game.exceptions
-
-if TYPE_CHECKING:
-    import game.engine
-    import game.entity
 
 
 class Action:
@@ -166,7 +164,7 @@ class Move(ActionWithDirection):
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             # Destination is out of bounds.
             raise game.exceptions.Impossible("That way is blocked.")
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles[dest_x, dest_y]:
             # Destination is blocked by a tile.
             raise game.exceptions.Impossible("That way is blocked.")
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):

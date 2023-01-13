@@ -4,13 +4,14 @@ import lzma
 import pickle
 
 import tcod
+import random
 
 import game.entity
 import game.exceptions
 import game.game_map
 import game.input_handlers
 import game.message_log
-import game.render_functions
+import game.rendering
 
 
 class Engine:
@@ -21,6 +22,7 @@ class Engine:
         self.message_log = game.message_log.MessageLog()
         self.mouse_location = (0, 0)
         self.player = player
+        self.rng = random.Random()
 
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
@@ -33,32 +35,17 @@ class Engine:
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
         self.game_map.visible[:] = tcod.map.compute_fov(
-            self.game_map.tiles["transparent"],
+            self.game_map.tiles,
             (self.player.x, self.player.y),
             radius=8,
+            algorithm=tcod.FOV_SYMMETRIC_SHADOWCAST,
         )
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
 
     def render(self, console: tcod.Console) -> None:
-        self.game_map.render(console)
-
-        self.message_log.render(console=console, x=21, y=45, width=40, height=5)
-
-        game.render_functions.render_bar(
-            console=console,
-            current_value=self.player.fighter.hp,
-            maximum_value=self.player.fighter.max_hp,
-            total_width=20,
-        )
-
-        game.render_functions.render_dungeon_level(
-            console=console,
-            dungeon_level=self.game_world.current_floor,
-            location=(0, 47),
-        )
-
-        game.render_functions.render_names_at_mouse_location(console=console, x=21, y=44, engine=self)
+        game.rendering.render_map(console, self.game_map)
+        game.rendering.render_ui(console, self)
 
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""
