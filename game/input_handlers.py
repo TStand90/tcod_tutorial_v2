@@ -5,9 +5,9 @@ import os
 
 import tcod
 
-import game.actions
 import game.color
 import game.engine
+import game.actions
 import game.entity
 import game.exceptions
 
