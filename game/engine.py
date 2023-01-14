@@ -9,7 +9,6 @@ import random
 import game.entity
 import game.exceptions
 import game.game_map
-import game.input_handlers
 import game.message_log
 import game.rendering
 
