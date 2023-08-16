@@ -14,16 +14,16 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
         key = event.sym
 
-        if key == tcod.event.K_UP:
+        if key == tcod.event.KeySym.UP:
             action = MovementAction(dx=0, dy=-1)
-        elif key == tcod.event.K_DOWN:
+        elif key == tcod.event.KeySym.DOWN:
             action = MovementAction(dx=0, dy=1)
-        elif key == tcod.event.K_LEFT:
+        elif key == tcod.event.KeySym.LEFT:
             action = MovementAction(dx=-1, dy=0)
-        elif key == tcod.event.K_RIGHT:
+        elif key == tcod.event.KeySym.RIGHT:
             action = MovementAction(dx=1, dy=0)
 
-        elif key == tcod.event.K_ESCAPE:
+        elif key == tcod.event.KeySym.ESCAPE:
             action = EscapeAction()
 
         # No valid key was pressed
